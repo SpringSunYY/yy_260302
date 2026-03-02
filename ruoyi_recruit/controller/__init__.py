@@ -4,7 +4,7 @@
 from flask import Blueprint
 
 view_info = Blueprint('view_info', __name__, url_prefix='/recruit/viewInfo')
-recruit_info = Blueprint('recruit_info', __name__, url_prefix='/recruit/recruit_info')
+recruit_info = Blueprint('recruit_info', __name__, url_prefix='/recruit/recruitInfo')
 recommend_info = Blueprint('recommend_info', __name__, url_prefix='/recruit/recommendInfo')
 like_info = Blueprint('like_info', __name__, url_prefix='/recruit/likeInfo')
 

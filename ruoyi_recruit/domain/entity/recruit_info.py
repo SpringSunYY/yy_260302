@@ -7,7 +7,7 @@ from typing import Optional, Annotated
 from datetime import datetime
 from pydantic import Field, BeforeValidator
 from ruoyi_common.base.model import BaseEntity
-from ruoyi_common.base.transformer import to_datetime, str_to_int
+from ruoyi_common.base.transformer import to_datetime, str_to_int, str_to_float
 from ruoyi_common.base.schema_excel import ExcelField
 from ruoyi_common.base.schema_vo import VoField
 
@@ -22,7 +22,7 @@ class RecruitInfo(BaseEntity):
         BeforeValidator(str_to_int),
         Field(default=None, description="编号"),
         VoField(query=True),
-        ExcelField(name="编号")
+        ExcelField(name="编号", action='export')
     ]
     # 岗位大类
     post_type: Annotated[
@@ -73,6 +73,12 @@ class RecruitInfo(BaseEntity):
         VoField(query=True),
         ExcelField(name="城市")
     ]
+    # 完整地址
+    full_address: Annotated[
+        Optional[str],
+        Field(default=None, description="完整地址"),
+        ExcelField(name="完整地址", action="export")
+    ]
     # 工作地点
     location: Annotated[
         Optional[str],
@@ -85,15 +91,17 @@ class RecruitInfo(BaseEntity):
         Field(default=None, description="薪资范围"),
         ExcelField(name="薪资范围")
     ]
-    # 薪资下限
+    #  薪资下限
     salary_min: Annotated[
         Optional[float],
+        BeforeValidator(str_to_float),
         Field(default=None, description="薪资下限"),
         ExcelField(name="薪资下限")
     ]
     # 薪资上限
     salary_max: Annotated[
         Optional[float],
+        BeforeValidator(str_to_float),
         Field(default=None, description="薪资上限"),
         ExcelField(name="薪资上限")
     ]
@@ -101,7 +109,7 @@ class RecruitInfo(BaseEntity):
     salary_month_avg: Annotated[
         Optional[float],
         Field(default=None, description="薪资平均值"),
-        ExcelField(name="薪资平均值")
+        ExcelField(name="薪资平均值", action="export")
     ]
     # 薪资备注
     salary_remark: Annotated[
@@ -134,7 +142,7 @@ class RecruitInfo(BaseEntity):
         Optional[str],
         Field(default=None, description="技能要求"),
         VoField(query=True),
-        ExcelField(name="技能要求")
+        ExcelField(name="技能要求", action="export")
     ]
     # 技能要求1
     skill_required1: Annotated[
@@ -211,7 +219,7 @@ class RecruitInfo(BaseEntity):
         Optional[int],
         BeforeValidator(str_to_int),
         Field(default=None, description="创建人"),
-        ExcelField(name="创建人")
+        ExcelField(name="创建人", action="export")
     ]
     # 创建时间
     create_time: Annotated[
@@ -219,20 +227,20 @@ class RecruitInfo(BaseEntity):
         BeforeValidator(to_datetime()),
         Field(default=None, description="创建时间"),
         VoField(query=True),
-        ExcelField(name="创建时间")
+        ExcelField(name="创建时间", action="export")
     ]
     # 更新人
     update_by: Annotated[
         Optional[str],
         Field(default=None, description="更新人"),
-        ExcelField(name="更新人")
+        ExcelField(name="更新人", action="export")
     ]
     # 更新时间
     update_time: Annotated[
         Optional[datetime],
         BeforeValidator(to_datetime()),
         Field(default=None, description="更新时间"),
-        ExcelField(name="更新时间")
+        ExcelField(name="更新时间", action="export")
     ]
     params: Optional[dict] = Field(default=None, description="参数")
     # 页码

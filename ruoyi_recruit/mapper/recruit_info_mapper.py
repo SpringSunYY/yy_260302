@@ -267,4 +267,29 @@ class RecruitInfoMapper:
             db.session.rollback()
             print(f"批量删除招聘信息出错: {e}")
             return 0
+
+    @classmethod
+    def select_recruit_info_by_unique(cls, post: str, enterprise_name: str, city: str) -> Optional[RecruitInfo]:
+        """
+        根据岗位+企业名称+城市查询唯一招聘信息
+
+        Args:
+            post (str): 岗位
+            enterprise_name (str): 企业名称
+            city (str): 城市
+
+        Returns:
+            Optional[RecruitInfo]: 招聘信息对象
+        """
+        try:
+            stmt = select(RecruitInfoPo).where(
+                RecruitInfoPo.post == post,
+                RecruitInfoPo.enterprise_name == enterprise_name,
+                RecruitInfoPo.city == city
+            )
+            result = db.session.execute(stmt).scalar_one_or_none()
+            return RecruitInfo.model_validate(result) if result else None
+        except Exception as e:
+            print(f"根据唯一标识查询招聘信息出错: {e}")
+            return None
     

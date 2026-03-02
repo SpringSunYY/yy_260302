@@ -67,6 +67,13 @@ class RecruitInfoPo(db.Model):
         nullable=True,
         comment='城市'
     )
+    # 完整地址
+    full_address: Mapped[Optional[str]] = mapped_column(
+        'full_address',
+        String(255),
+        nullable=True,
+        comment='完整地址'
+    )
     location: Mapped[Optional[str]] = mapped_column(
         'location',
         String(255),

@@ -1,4 +1,3 @@
-
 from typing import List
 
 from flask import g
@@ -10,7 +9,8 @@ from werkzeug.datastructures import FileStorage
 from ruoyi_common.base.model import AjaxResponse, TableResponse
 from ruoyi_common.constant import HttpStatus
 from ruoyi_common.descriptor.serializer import BaseSerializer, JsonSerializer
-from ruoyi_common.descriptor.validator import QueryValidator, BodyValidator, PathValidator, FileDownloadValidator, FileUploadValidator
+from ruoyi_common.descriptor.validator import QueryValidator, BodyValidator, PathValidator, FileDownloadValidator, \
+    FileUploadValidator
 from ruoyi_common.domain.enum import BusinessType
 from ruoyi_common.utils.base import ExcelUtil
 from ruoyi_framework.descriptor.log import Log
@@ -29,9 +29,10 @@ def _clear_page_context():
     if hasattr(g, "criterian_meta"):
         g.criterian_meta.page = None
 
+
 @gen.route('/list', methods=["GET"])
 @QueryValidator(is_page=True)
-@PreAuthorize(HasPerm('recruit:recruit_info:list'))
+@PreAuthorize(HasPerm('recruit:recruitInfo:list'))
 @JsonSerializer()
 def recruit_info_list(dto: RecruitInfo):
     """查询招聘信息列表"""
@@ -46,7 +47,7 @@ def recruit_info_list(dto: RecruitInfo):
 
 @gen.route('/<int:recruitId>', methods=['GET'])
 @PathValidator()
-@PreAuthorize(HasPerm('recruit:recruit_info:query'))
+@PreAuthorize(HasPerm('recruit:recruitInfo:query'))
 @JsonSerializer()
 def get_recruit_info(recruit_id: int):
     """获取招聘信息详细信息"""
@@ -56,7 +57,7 @@ def get_recruit_info(recruit_id: int):
 
 @gen.route('', methods=['POST'])
 @BodyValidator()
-@PreAuthorize(HasPerm('recruit:recruit_info:add'))
+@PreAuthorize(HasPerm('recruit:recruitInfo:add'))
 @Log(title='招聘信息管理', business_type=BusinessType.INSERT)
 @JsonSerializer()
 def add_recruit_info(dto: RecruitInfo):
@@ -74,7 +75,7 @@ def add_recruit_info(dto: RecruitInfo):
 
 @gen.route('', methods=['PUT'])
 @BodyValidator()
-@PreAuthorize(HasPerm('recruit:recruit_info:edit'))
+@PreAuthorize(HasPerm('recruit:recruitInfo:edit'))
 @Log(title='招聘信息管理', business_type=BusinessType.UPDATE)
 @JsonSerializer()
 def update_recruit_info(dto: RecruitInfo):
@@ -90,10 +91,9 @@ def update_recruit_info(dto: RecruitInfo):
     return AjaxResponse.from_error(msg='修改失败')
 
 
-
 @gen.route('/<ids>', methods=['DELETE'])
 @PathValidator()
-@PreAuthorize(HasPerm('recruit:recruit_info:remove'))
+@PreAuthorize(HasPerm('recruit:recruitInfo:remove'))
 @Log(title='招聘信息管理', business_type=BusinessType.DELETE)
 @JsonSerializer()
 def delete_recruit_info(ids: str):
@@ -110,7 +110,7 @@ def delete_recruit_info(ids: str):
 
 @gen.route('/export', methods=['POST'])
 @FileDownloadValidator()
-@PreAuthorize(HasPerm('recruit:recruit_info:export'))
+@PreAuthorize(HasPerm('recruit:recruitInfo:export'))
 @Log(title='招聘信息管理', business_type=BusinessType.EXPORT)
 @BaseSerializer()
 def export_recruit_info(dto: RecruitInfo):
@@ -128,6 +128,7 @@ def export_recruit_info(dto: RecruitInfo):
     excel_util = ExcelUtil(RecruitInfo)
     return excel_util.export_response(recruit_infos, "招聘信息数据")
 
+
 @gen.route('/importTemplate', methods=['POST'])
 @login_required
 @BaseSerializer()
@@ -136,18 +137,18 @@ def import_template():
     excel_util = ExcelUtil(RecruitInfo)
     return excel_util.import_template_response(sheetname="招聘信息数据")
 
+
 @gen.route('/importData', methods=['POST'])
 @FileUploadValidator()
-@PreAuthorize(HasPerm('recruit:recruit_info:import'))
+@PreAuthorize(HasPerm('recruit:recruitInfo:import'))
 @Log(title='招聘信息管理', business_type=BusinessType.IMPORT)
 @JsonSerializer()
 def import_data(
-    file: List[FileStorage],
-    update_support: Annotated[bool, BeforeValidator(lambda x: x != "0")]
+        file: List[FileStorage]
 ):
     """导入招聘信息数据"""
     file = file[0]
     excel_util = ExcelUtil(RecruitInfo)
     recruit_info_list = excel_util.import_file(file, sheetname="招聘信息数据")
-    msg = recruit_info_service.import_recruit_info(recruit_info_list, update_support)
+    msg = recruit_info_service.import_recruit_info(recruit_info_list)
     return AjaxResponse.from_success(msg=msg)

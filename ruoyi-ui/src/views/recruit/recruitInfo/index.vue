@@ -151,7 +151,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['recruit:recruit_info:add']"
+          v-hasPermi="['recruit:recruitInfo:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -162,7 +162,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['recruit:recruit_info:edit']"
+          v-hasPermi="['recruit:recruitInfo:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -173,7 +173,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['recruit:recruit_info:remove']"
+          v-hasPermi="['recruit:recruitInfo:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -183,7 +183,7 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['recruit:recruit_info:export']"
+          v-hasPermi="['recruit:recruitInfo:export']"
         >导出</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -193,13 +193,13 @@
           icon="el-icon-upload2"
           size="mini"
           @click="handleImport"
-          v-hasPermi="['recruit:recruit_info:import']"
+          v-hasPermi="['recruit:recruitInfo:import']"
         >导入</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
-    <el-table :loading="loading" :data="recruit_infoList" @selection-change="handleSelectionChange">
+    <el-table :loading="loading" :data="recruitInfoList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="编号" :show-overflow-tooltip="true" v-if="columns[0].visible" prop="recruitId" />
       <el-table-column label="岗位大类" align="center" v-if="columns[1].visible" prop="postType">
@@ -273,14 +273,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['recruit:recruit_info:edit']"
+            v-hasPermi="['recruit:recruitInfo:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['recruit:recruit_info:remove']"
+            v-hasPermi="['recruit:recruitInfo:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -442,7 +442,7 @@
         :limit="1"
         accept=".xlsx, .xls"
         :headers="upload.headers"
-        :action="upload.url + '?updateSupport=' + upload.updateSupport"
+        :action="upload.url"
         :disabled="upload.isUploading"
         :on-progress="handleFileUploadProgress"
         :on-success="handleFileSuccess"
@@ -452,9 +452,6 @@
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         <div class="el-upload__tip text-center" slot="tip">
-          <div class="el-upload__tip" slot="tip">
-            <el-checkbox v-model="upload.updateSupport" /> 是否更新已经存在的招聘信息数据
-          </div>
           <span>仅允许导入xls、xlsx格式文件。</span>
           <el-link type="primary" :underline="false" style="font-size:12px;vertical-align: baseline;" @click="importTemplate">下载模板</el-link>
         </div>
@@ -470,7 +467,7 @@
 <script>
 
 
-import { listRecruitInfo, getRecruitInfo, delRecruitInfo, addRecruitInfo, updateRecruitInfo } from "@/api/recruit/recruit_info";
+import { listRecruitInfo, getRecruitInfo, delRecruitInfo, addRecruitInfo, updateRecruitInfo } from "@/api/recruit/recruitInfo";
 import { getToken } from "@/utils/auth";
 
 export default {
@@ -491,7 +488,7 @@ export default {
       // 总条数
       total: 0,
       // 招聘信息表格数据
-      recruit_infoList: [],
+      recruitInfoList: [],
       // 表格列信息
       columns: [
         { key: 0, label: '编号', visible: true },
@@ -571,7 +568,7 @@ export default {
         // 设置上传的请求头部
         headers: { Authorization: "Bearer " + getToken() },
         // 上传的地址
-        url: process.env.VUE_APP_BASE_API + "/recruit/recruit_info/importData"
+        url: process.env.VUE_APP_BASE_API + "/recruit/recruitInfo/importData"
       },
       // 表单校验
       rules: {
@@ -605,7 +602,7 @@ export default {
         this.queryParams.params["endcreateTime"] = this.dateRangeCreateTime[1];
       }
       listRecruitInfo(this.queryParams).then(response => {
-        this.recruit_infoList = response.rows;
+        this.recruitInfoList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -711,9 +708,9 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const recruit_infoIds = row.recruitId || this.ids;
-      this.$modal.confirm('是否确认删除招聘信息编号为"' + recruit_infoIds + '"的数据项？').then(function() {
-        return delRecruitInfo(recruit_infoIds);
+      const recruitInfoIds = row.recruitId || this.ids;
+      this.$modal.confirm('是否确认删除招聘信息编号为"' + recruitInfoIds + '"的数据项？').then(function() {
+        return delRecruitInfo(recruitInfoIds);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -721,9 +718,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('recruit/recruit_info/export', {
+      this.download('recruit/recruitInfo/export', {
         ...this.queryParams
-      }, `recruit_info_${new Date().getTime()}.xlsx`)
+      }, `recruitInfo_${new Date().getTime()}.xlsx`)
     },
     /** 导入按钮操作 */
     handleImport() {
@@ -733,9 +730,9 @@ export default {
     /** 下载模板操作 */
     importTemplate() {
       this.download(
-        "recruit/recruit_info/importTemplate",
+        "recruit/recruitInfo/importTemplate",
         {},
-        "recruit_info_template_" + new Date().getTime() + ".xlsx"
+        "recruitInfo_template_" + new Date().getTime() + ".xlsx"
       );
     },
     // 文件上传中处理
