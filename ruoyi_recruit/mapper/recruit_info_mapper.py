@@ -49,7 +49,6 @@ class RecruitInfoMapper:
             if end_val is not None:
                 stmt = stmt.where(RecruitInfoPo.post_update_time <= end_val)
 
-
             if recruit_info.city_level is not None:
                 stmt = stmt.where(RecruitInfoPo.city_level == recruit_info.city_level)
 
@@ -59,13 +58,6 @@ class RecruitInfoMapper:
             if recruit_info.city:
                 stmt = stmt.where(RecruitInfoPo.city.like("%" + str(recruit_info.city) + "%"))
 
-
-
-
-
-
-
-
             if recruit_info.experience_required is not None:
                 stmt = stmt.where(RecruitInfoPo.experience_required == recruit_info.experience_required)
 
@@ -74,11 +66,6 @@ class RecruitInfoMapper:
 
             if recruit_info.skill_required:
                 stmt = stmt.where(RecruitInfoPo.skill_required.like("%" + str(recruit_info.skill_required) + "%"))
-
-
-
-
-
 
             if recruit_info.enterprise_name:
                 stmt = stmt.where(RecruitInfoPo.enterprise_name.like("%" + str(recruit_info.enterprise_name) + "%"))
@@ -92,9 +79,6 @@ class RecruitInfoMapper:
             if recruit_info.financing_situation is not None:
                 stmt = stmt.where(RecruitInfoPo.financing_situation == recruit_info.financing_situation)
 
-
-
-
             _params = getattr(recruit_info, "params", {}) or {}
             begin_val = _params.get("beginCreateTime")
             end_val = _params.get("endCreateTime")
@@ -102,8 +86,7 @@ class RecruitInfoMapper:
                 stmt = stmt.where(RecruitInfoPo.create_time >= begin_val)
             if end_val is not None:
                 stmt = stmt.where(RecruitInfoPo.create_time <= end_val)
-
-
+            stmt=stmt.order_by(RecruitInfoPo.update_time.desc())
             if "criterian_meta" in g and g.criterian_meta.page:
                 g.criterian_meta.page.stmt = stmt
             result = db.session.execute(stmt).scalars().all()
@@ -112,7 +95,7 @@ class RecruitInfoMapper:
             print(f"查询招聘信息列表出错: {e}")
             return []
 
-    
+
     @classmethod
     def select_recruit_info_by_id(cls, recruit_id: int) -> Optional[RecruitInfo]:
         """
@@ -130,7 +113,7 @@ class RecruitInfoMapper:
         except Exception as e:
             print(f"根据ID查询招聘信息出错: {e}")
             return None
-    
+
 
     @classmethod
     def insert_recruit_info(cls, recruit_info: RecruitInfo) -> int:
@@ -188,7 +171,7 @@ class RecruitInfoMapper:
             print(f"新增招聘信息出错: {e}")
             return 0
 
-    
+
     @classmethod
     def update_recruit_info(cls, recruit_info: RecruitInfo) -> int:
         """
@@ -201,7 +184,7 @@ class RecruitInfoMapper:
             int: 更新的记录数
         """
         try:
-            
+
             existing = db.session.get(RecruitInfoPo, recruit_info.recruit_id)
             if not existing:
                 return 0
@@ -241,7 +224,7 @@ class RecruitInfoMapper:
             existing.update_time = recruit_info.update_time or now
             db.session.commit()
             return 1
-            
+
         except Exception as e:
             db.session.rollback()
             print(f"修改招聘信息出错: {e}")
@@ -292,4 +275,3 @@ class RecruitInfoMapper:
         except Exception as e:
             print(f"根据唯一标识查询招聘信息出错: {e}")
             return None
-    

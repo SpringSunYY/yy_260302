@@ -55,6 +55,12 @@ class RecruitInfoService:
         Returns:
             int: 插入的记录数
         """
+        recruit_info.user_id = get_user_id()
+        # 查询改为是否已存在
+        recruit_info_db= RecruitInfoMapper.select_recruit_info_by_unique(recruit_info.post, recruit_info.enterprise_name,
+                                                        recruit_info.city)
+        if recruit_info_db:
+            raise ServiceException(f"已存在岗位：{recruit_info.post}，企业：{recruit_info.enterprise_name}，城市：{recruit_info.city}")
         return RecruitInfoMapper.insert_recruit_info(recruit_info)
 
     @classmethod
@@ -68,6 +74,11 @@ class RecruitInfoService:
         Returns:
             int: 更新的记录数
         """
+        # 查询改为是否已存在
+        recruit_info_db= RecruitInfoMapper.select_recruit_info_by_unique(recruit_info.post, recruit_info.enterprise_name,
+                                                                         recruit_info.city)
+        if recruit_info_db and recruit_info_db.recruit_id != recruit_info.recruit_id:
+            raise ServiceException(f"已存在岗位：{recruit_info.post}，企业：{recruit_info.enterprise_name}，城市：{recruit_info.city}")
         return RecruitInfoMapper.update_recruit_info(recruit_info)
 
     @classmethod
@@ -121,7 +132,8 @@ class RecruitInfoService:
                 # 3、如果岗位、城市、省份为空则过滤此数据
                 if not recruit_info.post or not recruit_info.city or not recruit_info.province:
                     skip_count += 1
-                    LogUtil.logger.warn(f"[导入招聘信息] 过滤数据：岗位={recruit_info.post}, 城市={recruit_info.city}, 省份={recruit_info.province}")
+                    LogUtil.logger.warn(
+                        f"[导入招聘信息] 过滤数据：岗位={recruit_info.post}, 城市={recruit_info.city}, 省份={recruit_info.province}")
                     continue
 
                 # 1、优化省份城市：转换为完整地址
@@ -207,7 +219,8 @@ class RecruitInfoService:
             raise ServiceException(fail_msg)
 
         success_msg = f"恭喜您，数据已全部导入成功！共 {success_count} 条，数据如下：" + success_msg
-        LogUtil.logger.info(f"[导入招聘信息] 导入完成，共 {total_count} 条，成功 {success_count} 条，失败 {fail_count} 条，过滤 {skip_count} 条")
+        LogUtil.logger.info(
+            f"[导入招聘信息] 导入完成，共 {total_count} 条，成功 {success_count} 条，失败 {fail_count} 条，过滤 {skip_count} 条")
         return success_msg
 
     @staticmethod
