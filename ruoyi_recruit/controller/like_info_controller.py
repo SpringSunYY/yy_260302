@@ -16,13 +16,15 @@ from ruoyi_common.utils.base import ExcelUtil
 from ruoyi_framework.descriptor.log import Log
 from ruoyi_framework.descriptor.permission import HasPerm, PreAuthorize
 from ruoyi_recruit.controller import like_info as like_info_bp
-from ruoyi_recruit.domain.entity import LikeInfo
+from ruoyi_recruit.domain.entity import LikeInfo, RecruitInfo
 from ruoyi_recruit.service.like_info_service import LikeInfoService
+from ruoyi_recruit.service.recruit_info_service import RecruitInfoService
 
 # 使用 controller/__init__.py 中定义的蓝图
 gen = like_info_bp
 
 like_info_service = LikeInfoService()
+recruit_info_service = RecruitInfoService()
 
 
 def _clear_page_context():
@@ -151,3 +153,22 @@ def import_data(
     like_info_list = excel_util.import_file(file, sheetname="用户点赞数据")
     msg = like_info_service.import_like_info(like_info_list, update_support)
     return AjaxResponse.from_success(msg=msg)
+
+
+@gen.route('/like/<int:recruitId>', methods=['POST'])
+@PathValidator()
+@PreAuthorize(HasPerm('recruit:likeInfo:add'))
+@Log(title='用户点赞管理', business_type=BusinessType.INSERT)
+@JsonSerializer()
+def toggle_like(recruit_id: int):
+    """点赞或取消点赞"""
+    # 先查询招聘信息详情
+    recruit_info = recruit_info_service.select_recruit_info_by_id(recruit_id)
+    if not recruit_info:
+        return AjaxResponse.from_error(msg='招聘信息不存在')
+
+    # 执行点赞或取消点赞
+    result = like_info_service.toggle_like(recruit_info)
+    if result.get('is_liked') is not None:
+        return AjaxResponse.from_success(data={"isLiked": result['is_liked']}, msg=result['msg'])
+    return AjaxResponse.from_error(msg=result.get('msg', '操作失败'))

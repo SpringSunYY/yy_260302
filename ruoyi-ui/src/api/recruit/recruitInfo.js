@@ -17,6 +17,13 @@ export function getRecruitInfo(recruitId) {
     method: 'get'
   })
 }
+// 查询招聘信息详细
+export function getRecruitInfoDetail(recruitId) {
+  return request({
+    url: '/recruit/recruitInfo/detail/' + recruitId,
+    method: 'get'
+  })
+}
 
 // 新增招聘信息
 export function addRecruitInfo(data) {
@@ -42,5 +49,13 @@ export function delRecruitInfo(recruitId) {
   return request({
     url: '/recruit/recruitInfo/' +recruitId,
     method: 'delete'
+  })
+}
+
+// 点赞或取消点赞
+export function toggleLike(recruitId) {
+  return request({
+    url: '/recruit/likeInfo/like/' + recruitId,
+    method: 'post'
   })
 }

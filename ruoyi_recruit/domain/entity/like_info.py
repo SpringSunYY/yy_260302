@@ -24,6 +24,15 @@ class LikeInfo(BaseEntity):
         VoField(query=True),
         ExcelField(name="编号")
     ]
+
+    # 岗位编号
+    recruit_id: Annotated[
+        Optional[int],
+        BeforeValidator(str_to_int),
+        Field(default=None, description="编号"),
+        VoField(query=True),
+        ExcelField(name="编号", action='export')
+    ]
     # 用户
     user_id: Annotated[
         Optional[int],

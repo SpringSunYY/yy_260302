@@ -8,10 +8,12 @@ from datetime import datetime
 from typing import List, Optional
 
 from ruoyi_common.exception import ServiceException
+from ruoyi_common.utils import DateUtil
 from ruoyi_common.utils.base import LogUtil
 from ruoyi_common.utils.city_map_util import CityMapUtil
 from ruoyi_common.utils.security_util import get_username, get_user_id
-from ruoyi_recruit.domain.entity import RecruitInfo
+from ruoyi_recruit.domain.entity import RecruitInfo, ViewInfo
+from ruoyi_recruit.mapper import LikeInfoMapper, ViewInfoMapper
 from ruoyi_recruit.mapper.recruit_info_mapper import RecruitInfoMapper
 
 
@@ -44,6 +46,39 @@ class RecruitInfoService:
         """
         return RecruitInfoMapper.select_recruit_info_by_id(recruit_id)
 
+    def select_recruit_info_detail_by_id(self, recruit_id) -> Optional[RecruitInfo]:
+        recruit_info = RecruitInfoMapper.select_recruit_info_by_id(recruit_id)
+        user_id = get_user_id()
+        user_name = get_username()
+        # 查询是否点赞
+        like_info_db = LikeInfoMapper.select_is_like(recruit_id, user_id)
+        if like_info_db:
+            recruit_info.is_liked = True
+        else:
+            recruit_info.is_liked = False
+        now = DateUtil.get_date_now()
+        # 查询用户今日是否浏览过
+        view_info_db = ViewInfoMapper.select_is_view_by_date(recruit_id, user_id, now)
+        if view_info_db is None:
+            # 新增浏览信息
+            view_info = ViewInfo()
+            view_info.recruit_id = recruit_id
+            view_info.user_id = user_id
+            view_info.user_name = user_name
+            view_info.post_type = recruit_info.post_type
+            view_info.city_level = recruit_info.city_level
+            view_info.province = recruit_info.province
+            view_info.city = recruit_info.city
+            view_info.salary_month_avg = recruit_info.salary_month_avg
+            view_info.experience_required = recruit_info.experience_required
+            view_info.education_required = recruit_info.education_required
+            view_info.main_business = recruit_info.main_business
+            view_info.financing_situation = recruit_info.financing_situation
+            view_info.enterprise_size = recruit_info.enterprise_size
+            view_info.score = 3
+            ViewInfoMapper.insert_view_info(view_info)
+        return recruit_info
+
     @classmethod
     def insert_recruit_info(cls, recruit_info: RecruitInfo) -> int:
         """
@@ -57,10 +92,12 @@ class RecruitInfoService:
         """
         recruit_info.user_id = get_user_id()
         # 查询改为是否已存在
-        recruit_info_db= RecruitInfoMapper.select_recruit_info_by_unique(recruit_info.post, recruit_info.enterprise_name,
-                                                        recruit_info.city)
+        recruit_info_db = RecruitInfoMapper.select_recruit_info_by_unique(recruit_info.post,
+                                                                          recruit_info.enterprise_name,
+                                                                          recruit_info.city)
         if recruit_info_db:
-            raise ServiceException(f"已存在岗位：{recruit_info.post}，企业：{recruit_info.enterprise_name}，城市：{recruit_info.city}")
+            raise ServiceException(
+                f"已存在岗位：{recruit_info.post}，企业：{recruit_info.enterprise_name}，城市：{recruit_info.city}")
         return RecruitInfoMapper.insert_recruit_info(recruit_info)
 
     @classmethod
@@ -75,10 +112,12 @@ class RecruitInfoService:
             int: 更新的记录数
         """
         # 查询改为是否已存在
-        recruit_info_db= RecruitInfoMapper.select_recruit_info_by_unique(recruit_info.post, recruit_info.enterprise_name,
-                                                                         recruit_info.city)
+        recruit_info_db = RecruitInfoMapper.select_recruit_info_by_unique(recruit_info.post,
+                                                                          recruit_info.enterprise_name,
+                                                                          recruit_info.city)
         if recruit_info_db and recruit_info_db.recruit_id != recruit_info.recruit_id:
-            raise ServiceException(f"已存在岗位：{recruit_info.post}，企业：{recruit_info.enterprise_name}，城市：{recruit_info.city}")
+            raise ServiceException(
+                f"已存在岗位：{recruit_info.post}，企业：{recruit_info.enterprise_name}，城市：{recruit_info.city}")
         return RecruitInfoMapper.update_recruit_info(recruit_info)
 
     @classmethod

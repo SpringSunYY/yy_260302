@@ -242,6 +242,12 @@ class RecruitInfo(BaseEntity):
         Field(default=None, description="更新时间"),
         ExcelField(name="更新时间", action="export")
     ]
+
+    is_liked : Annotated[
+        Optional[bool],
+        Field(default=None, description="是否点赞")
+    ]
+
     params: Optional[dict] = Field(default=None, description="参数")
     # 页码
     page_num: Optional[int] = Field(default=1, description="页码")

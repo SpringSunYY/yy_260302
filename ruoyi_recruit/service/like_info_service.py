@@ -7,7 +7,8 @@ from typing import List, Optional
 
 from ruoyi_common.exception import ServiceException
 from ruoyi_common.utils.base import LogUtil
-from ruoyi_recruit.domain.entity import LikeInfo
+from ruoyi_common.utils.security_util import get_username, get_user_id
+from ruoyi_recruit.domain.entity import LikeInfo, RecruitInfo
 from ruoyi_recruit.mapper.like_info_mapper import LikeInfoMapper
 
 class LikeInfoService:
@@ -80,6 +81,52 @@ class LikeInfoService:
             int: 删除的记录数
         """
         return LikeInfoMapper.delete_like_info_by_ids(ids)
+
+    @classmethod
+    def toggle_like(cls, recruit_info: RecruitInfo) -> dict:
+        """
+        点赞或取消点赞
+
+        Args:
+            recruit_info (RecruitInfo): 招聘信息对象
+
+        Returns:
+            dict: 操作结果，包含 is_liked (bool) 表示操作后是否已点赞
+        """
+        user_id = get_user_id()
+        user_name = get_username()
+
+        # 查询是否已点赞
+        existing_like = LikeInfoMapper.select_is_like(recruit_info.recruit_id, user_id)
+
+        if existing_like:
+            # 已点赞，取消点赞
+            result = LikeInfoMapper.delete_like_by_recruit_and_user(recruit_info.recruit_id, user_id)
+            if result > 0:
+                return {"is_liked": False, "msg": "取消点赞成功"}
+            return {"is_liked": True, "msg": "取消点赞失败"}
+        else:
+            # 未点赞，添加点赞
+            like_info = LikeInfo()
+            like_info.recruit_id = recruit_info.recruit_id
+            like_info.user_id = user_id
+            like_info.user_name = user_name
+            like_info.post_type = recruit_info.post_type
+            like_info.city_level = recruit_info.city_level
+            like_info.province = recruit_info.province
+            like_info.city = recruit_info.city
+            like_info.salary_month_avg = recruit_info.salary_month_avg
+            like_info.experience_required = recruit_info.experience_required
+            like_info.education_required = recruit_info.education_required
+            like_info.main_business = recruit_info.main_business
+            like_info.enterprise_size = recruit_info.enterprise_size
+            like_info.financing_situation = recruit_info.financing_situation
+            like_info.score = 5
+
+            result = LikeInfoMapper.insert_like_info(like_info)
+            if result > 0:
+                return {"is_liked": True, "msg": "点赞成功"}
+            return {"is_liked": False, "msg": "点赞失败"}
     
     @classmethod
     def import_like_info(cls, like_info_list: List[LikeInfo], is_update: bool = False) -> str:

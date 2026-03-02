@@ -2,16 +2,16 @@
 # @Author  : YY
 # @FileName: view_info_mapper.py
 # @Time    : 2026-03-02 16:56:42
-
 from typing import List, Optional
 from datetime import datetime
 
 from flask import g
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, and_
 
 from ruoyi_admin.ext import db
 from ruoyi_recruit.domain.entity import ViewInfo
 from ruoyi_recruit.domain.po import ViewInfoPo
+
 
 class ViewInfoMapper:
     """用户浏览Mapper"""
@@ -31,10 +31,8 @@ class ViewInfoMapper:
             # 构建查询条件
             stmt = select(ViewInfoPo)
 
-
             if view_info.id is not None:
                 stmt = stmt.where(ViewInfoPo.id == view_info.id)
-
 
             if view_info.user_name:
                 stmt = stmt.where(ViewInfoPo.user_name.like("%" + str(view_info.user_name) + "%"))
@@ -50,7 +48,6 @@ class ViewInfoMapper:
 
             if view_info.city:
                 stmt = stmt.where(ViewInfoPo.city.like("%" + str(view_info.city) + "%"))
-
 
             if view_info.experience_required is not None:
                 stmt = stmt.where(ViewInfoPo.experience_required == view_info.experience_required)
@@ -85,7 +82,6 @@ class ViewInfoMapper:
             print(f"查询用户浏览列表出错: {e}")
             return []
 
-    
     @classmethod
     def select_view_info_by_id(cls, id: int) -> Optional[ViewInfo]:
         """
@@ -103,7 +99,6 @@ class ViewInfoMapper:
         except Exception as e:
             print(f"根据ID查询用户浏览出错: {e}")
             return None
-    
 
     @classmethod
     def insert_view_info(cls, view_info: ViewInfo) -> int:
@@ -120,6 +115,7 @@ class ViewInfoMapper:
             now = datetime.now()
             new_po = ViewInfoPo()
             new_po.id = view_info.id
+            new_po.recruit_id = view_info.recruit_id
             new_po.user_id = view_info.user_id
             new_po.user_name = view_info.user_name
             new_po.post_type = view_info.post_type
@@ -143,7 +139,6 @@ class ViewInfoMapper:
             print(f"新增用户浏览出错: {e}")
             return 0
 
-    
     @classmethod
     def update_view_info(cls, view_info: ViewInfo) -> int:
         """
@@ -156,7 +151,7 @@ class ViewInfoMapper:
             int: 更新的记录数
         """
         try:
-            
+
             existing = db.session.get(ViewInfoPo, view_info.id)
             if not existing:
                 return 0
@@ -178,7 +173,7 @@ class ViewInfoMapper:
             existing.create_time = view_info.create_time
             db.session.commit()
             return 1
-            
+
         except Exception as e:
             db.session.rollback()
             print(f"修改用户浏览出错: {e}")
@@ -204,4 +199,31 @@ class ViewInfoMapper:
             db.session.rollback()
             print(f"批量删除用户浏览出错: {e}")
             return 0
-    
+
+    @classmethod
+    def select_is_view_by_date(cls, recruit_id: int, user_id: int, now: str) \
+            -> Optional[ViewInfo]:
+        """
+        查询用户是否浏览过该职位，时间为0:00:00,23:59:59范围
+
+        Args:
+            recruit_id (int): 职位ID
+            user_id (int): 用户ID
+            now (str): 当前时间
+
+        Returns:
+            view_info: 用户浏览对象
+        """
+        try:
+            date_obj = datetime.strptime(now, '%Y-%m-%d')
+            start_time = date_obj.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_time = date_obj.replace(hour=23, minute=59, second=59, microsecond=999999)
+            stmt = select(ViewInfoPo).where(
+                and_(ViewInfoPo.recruit_id == recruit_id,
+                     ViewInfoPo.user_id == user_id,
+                     ViewInfoPo.create_time >= start_time,
+                     ViewInfoPo.create_time <= end_time))
+            result = db.session.execute(stmt).scalars().first()
+            return ViewInfo.model_validate(result) if result else None
+        except Exception as e:
+            print(f"查询用户是否浏览过该职位出错: {e}")

@@ -13,6 +13,7 @@ from ruoyi_admin.ext import db
 from ruoyi_recruit.domain.entity import LikeInfo
 from ruoyi_recruit.domain.po import LikeInfoPo
 
+
 class LikeInfoMapper:
     """用户点赞Mapper"""
 
@@ -31,10 +32,8 @@ class LikeInfoMapper:
             # 构建查询条件
             stmt = select(LikeInfoPo)
 
-
             if like_info.id is not None:
                 stmt = stmt.where(LikeInfoPo.id == like_info.id)
-
 
             if like_info.user_name:
                 stmt = stmt.where(LikeInfoPo.user_name.like("%" + str(like_info.user_name) + "%"))
@@ -51,7 +50,6 @@ class LikeInfoMapper:
             if like_info.city:
                 stmt = stmt.where(LikeInfoPo.city.like("%" + str(like_info.city) + "%"))
 
-
             if like_info.experience_required is not None:
                 stmt = stmt.where(LikeInfoPo.experience_required == like_info.experience_required)
 
@@ -66,7 +64,6 @@ class LikeInfoMapper:
 
             if like_info.financing_situation is not None:
                 stmt = stmt.where(LikeInfoPo.financing_situation == like_info.financing_situation)
-
 
             _params = getattr(like_info, "params", {}) or {}
             begin_val = _params.get("beginCreateTime")
@@ -83,7 +80,6 @@ class LikeInfoMapper:
             print(f"查询用户点赞列表出错: {e}")
             return []
 
-    
     @classmethod
     def select_like_info_by_id(cls, id: int) -> Optional[LikeInfo]:
         """
@@ -101,7 +97,6 @@ class LikeInfoMapper:
         except Exception as e:
             print(f"根据ID查询用户点赞出错: {e}")
             return None
-    
 
     @classmethod
     def insert_like_info(cls, like_info: LikeInfo) -> int:
@@ -117,7 +112,7 @@ class LikeInfoMapper:
         try:
             now = datetime.now()
             new_po = LikeInfoPo()
-            new_po.id = like_info.id
+            new_po.recruit_id = like_info.recruit_id
             new_po.user_id = like_info.user_id
             new_po.user_name = like_info.user_name
             new_po.post_type = like_info.post_type
@@ -141,7 +136,6 @@ class LikeInfoMapper:
             print(f"新增用户点赞出错: {e}")
             return 0
 
-    
     @classmethod
     def update_like_info(cls, like_info: LikeInfo) -> int:
         """
@@ -154,7 +148,7 @@ class LikeInfoMapper:
             int: 更新的记录数
         """
         try:
-            
+
             existing = db.session.get(LikeInfoPo, like_info.id)
             if not existing:
                 return 0
@@ -176,7 +170,7 @@ class LikeInfoMapper:
             existing.create_time = like_info.create_time
             db.session.commit()
             return 1
-            
+
         except Exception as e:
             db.session.rollback()
             print(f"修改用户点赞出错: {e}")
@@ -202,4 +196,48 @@ class LikeInfoMapper:
             db.session.rollback()
             print(f"批量删除用户点赞出错: {e}")
             return 0
-    
+
+    @classmethod
+    def select_is_like(cls, recruit_id: int, user_id: int) -> Optional[LikeInfo]:
+        """
+        查询用户是否点赞
+
+        Args:
+            recruit_id (int): 招聘信息ID
+            user_id (int): 用户ID
+
+        Returns:
+            like_info: 用户点赞对象
+        """
+        try:
+            stmt = select(LikeInfoPo).where(LikeInfoPo.recruit_id == recruit_id, LikeInfoPo.user_id == user_id)
+            result = db.session.execute(stmt).scalars().first()
+            return LikeInfo.model_validate(result) if result else None
+        except Exception as e:
+            print(f"查询用户是否点赞出错: {e}")
+
+    @classmethod
+    def delete_like_by_recruit_and_user(cls, recruit_id: int, user_id: int) -> int:
+        """
+        根据招聘信息ID和用户ID删除点赞记录
+
+        Args:
+            recruit_id (int): 招聘信息ID
+            user_id (int): 用户ID
+
+        Returns:
+            int: 删除的记录数
+        """
+        try:
+            stmt = delete(LikeInfoPo).where(
+                LikeInfoPo.recruit_id == recruit_id,
+                LikeInfoPo.user_id == user_id
+            )
+            result = db.session.execute(stmt)
+            db.session.commit()
+            return result.rowcount
+        except Exception as e:
+            db.session.rollback()
+            print(f"删除用户点赞出错: {e}")
+            return 0
+

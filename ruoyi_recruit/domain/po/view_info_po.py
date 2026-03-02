@@ -25,6 +25,12 @@ class ViewInfoPo(db.Model):
         nullable=False,
         comment='编号'
     )
+    recruit_id: Mapped[int] = mapped_column(
+        'recruit_id',
+        BigInteger,
+        nullable=False,
+        comment='岗位编号'
+    )
     user_id: Mapped[Optional[int]] = mapped_column(
         'user_id',
         BigInteger,

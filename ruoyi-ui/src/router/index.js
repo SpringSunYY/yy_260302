@@ -161,6 +161,13 @@ export const dynamicRoutes = [
         meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
       }
     ]
+  },
+  {
+    path: '/recruit/detail',
+    name: 'RecruitInfoDetail',
+    component: ()=>import('@/views/recruit/recruitInfo/detail'),
+    hidden: true,
+    permissions: ['recruit:recruitInfo:query'],
   }
 ]
 

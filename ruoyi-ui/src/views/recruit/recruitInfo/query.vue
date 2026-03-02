@@ -196,11 +196,11 @@
               </div>
 
               <!-- 标题链接 -->
-              <div class="card-footer" v-if="item.titleUrl">
+              <div class="card-footer">
                 <el-button
                   type="text"
-                  icon="el-icon-link"
-                  @click="openLink(item.titleUrl)"
+                  icon="el-icon-view"
+                  @click="openDetail(item)"
                   class="link-btn"
                 >
                   查看详情
@@ -332,10 +332,15 @@ export default {
       this.resetForm("queryForm");
       this.getList(true);
     },
+    /** 打开详情页 */
+    openDetail(row) {
+      const route = this.$router.resolve({ name: 'RecruitInfoDetail', query: { recruitId: row.recruitId } })
+      window.open(route.href, '_blank')
+    },
     /** 打开链接 */
     openLink(url) {
       if (url) {
-        window.open(url, '_blank');
+        this.openDetail({ recruitId: url })
       }
     },
     /** 处理滚动事件 - 使用节流优化性能 */

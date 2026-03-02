@@ -54,6 +54,14 @@ def get_recruit_info(recruit_id: int):
     recruit_info_entity = recruit_info_service.select_recruit_info_by_id(recruit_id)
     return AjaxResponse.from_success(data=recruit_info_entity)
 
+@gen.route('/detail/<int:recruitId>', methods=['GET'])
+@PathValidator()
+@PreAuthorize(HasPerm('recruit:recruitInfo:query'))
+@JsonSerializer()
+def get_recruit_info_detail(recruit_id: int):
+    """获取招聘信息详细信息"""
+    recruit_info_entity = recruit_info_service.select_recruit_info_detail_by_id(recruit_id)
+    return AjaxResponse.from_success(data=recruit_info_entity)
 
 @gen.route('', methods=['POST'])
 @BodyValidator()
