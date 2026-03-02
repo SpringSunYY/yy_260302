@@ -137,6 +137,7 @@ class RecruitInfoMapper:
             new_po.city_level = recruit_info.city_level
             new_po.province = recruit_info.province
             new_po.city = recruit_info.city
+            new_po.full_address = recruit_info.full_address
             new_po.location = recruit_info.location
             new_po.salary_range = recruit_info.salary_range
             new_po.salary_min = recruit_info.salary_min
@@ -197,6 +198,7 @@ class RecruitInfoMapper:
             existing.city_level = recruit_info.city_level
             existing.province = recruit_info.province
             existing.city = recruit_info.city
+            existing.full_address=recruit_info.full_address
             existing.location = recruit_info.location
             existing.salary_range = recruit_info.salary_range
             existing.salary_min = recruit_info.salary_min
