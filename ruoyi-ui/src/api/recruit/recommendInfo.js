@@ -1,9 +1,5 @@
 import request from '@/utils/request'
 
-
-
-
-
 // 查询用户推荐列表
 export function listRecommendInfo(query) {
   return request({
@@ -12,6 +8,17 @@ export function listRecommendInfo(query) {
     params: query
   })
 }
+
+
+// 获取用户推荐内容（自动判断是否需要生成新推荐）
+export function getRecommendContent(query) {
+  return request({
+    url: '/recruit/recommendInfo/content',
+    method: 'get',
+    params: query
+  })
+}
+
 
 // 查询用户推荐详细
 export function getRecommendInfo(id) {

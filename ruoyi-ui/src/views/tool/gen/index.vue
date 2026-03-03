@@ -346,7 +346,7 @@ export default {
       } else if (key.endsWith('.py.vm')) {
         language = 'python'
       }
-      
+
       // 对代码进行高亮处理
       try {
         // 确保语言已注册
@@ -381,7 +381,7 @@ export default {
             console.warn('清理Python代码后仍然高亮失败:', innerError)
           }
         }
-        
+
         // 如果特定语言处理失败，返回转义后的原始代码
         console.warn('代码高亮失败，返回原始代码:', e)
         // 尝试使用plaintext作为后备方案
@@ -401,7 +401,7 @@ export default {
         '"': '&quot;',
         "'": '&#039;'
       };
-      
+
       return text.replace(/[&<>"']/g, function(m) { return map[m]; });
     },
     /** 复制代码成功 */

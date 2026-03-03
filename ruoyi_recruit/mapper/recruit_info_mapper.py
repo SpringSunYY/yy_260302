@@ -277,3 +277,109 @@ class RecruitInfoMapper:
         except Exception as e:
             print(f"根据唯一标识查询招聘信息出错: {e}")
             return None
+
+    @classmethod
+    def select_recruit_info_by_ids(cls, recruit_ids: List[int]) -> List[RecruitInfo]:
+        """
+        根据ID列表查询招聘信息
+
+        Args:
+            recruit_ids (List[int]): 招聘ID列表
+
+        Returns:
+            List[RecruitInfo]: 招聘信息列表
+        """
+        try:
+            if not recruit_ids:
+                return []
+            stmt = select(RecruitInfoPo).where(RecruitInfoPo.recruit_id.in_(recruit_ids))
+            result = db.session.execute(stmt).scalars().all()
+            return [RecruitInfo.model_validate(item) for item in result] if result else []
+        except Exception as e:
+            print(f"根据ID列表查询招聘信息出错: {e}")
+            return []
+
+    @classmethod
+    def select_all_recruit_info(cls, limit: int = 1000) -> List[RecruitInfo]:
+        """
+        查询招聘信息（带限制）
+
+        Args:
+            limit (int): 返回记录数限制
+
+        Returns:
+            List[RecruitInfo]: 招聘信息列表
+        """
+        try:
+            stmt = select(RecruitInfoPo).order_by(RecruitInfoPo.create_time.desc()).limit(limit)
+            result = db.session.execute(stmt).scalars().all()
+            return [RecruitInfo.model_validate(item) for item in result] if result else []
+        except Exception as e:
+            print(f"查询招聘信息出错: {e}")
+            return []
+
+    @classmethod
+    def select_recruit_info_by_post_type(cls, post_type: str, limit: int = 500) -> List[RecruitInfo]:
+        """
+        根据岗位大类查询招聘信息
+
+        Args:
+            post_type (str): 岗位大类
+            limit (int): 返回记录数限制
+
+        Returns:
+            List[RecruitInfo]: 招聘信息列表
+        """
+        try:
+            stmt = select(RecruitInfoPo).where(
+                RecruitInfoPo.post_type == post_type
+            ).order_by(RecruitInfoPo.create_time.desc()).limit(limit)
+            result = db.session.execute(stmt).scalars().all()
+            return [RecruitInfo.model_validate(item) for item in result] if result else []
+        except Exception as e:
+            print(f"根据岗位大类查询招聘信息出错: {e}")
+            return []
+
+    @classmethod
+    def select_recruit_info_by_province(cls, province: str, limit: int = 500) -> List[RecruitInfo]:
+        """
+        根据省份查询招聘信息
+
+        Args:
+            province (str): 省份
+            limit (int): 返回记录数限制
+
+        Returns:
+            List[RecruitInfo]: 招聘信息列表
+        """
+        try:
+            stmt = select(RecruitInfoPo).where(
+                RecruitInfoPo.province == province
+            ).order_by(RecruitInfoPo.create_time.desc()).limit(limit)
+            result = db.session.execute(stmt).scalars().all()
+            return [RecruitInfo.model_validate(item) for item in result] if result else []
+        except Exception as e:
+            print(f"根据省份查询招聘信息出错: {e}")
+            return []
+
+    @classmethod
+    def select_recruit_info_by_city(cls, city: str, limit: int = 500) -> List[RecruitInfo]:
+        """
+        根据城市查询招聘信息
+
+        Args:
+            city (str): 城市
+            limit (int): 返回记录数限制
+
+        Returns:
+            List[RecruitInfo]: 招聘信息列表
+        """
+        try:
+            stmt = select(RecruitInfoPo).where(
+                RecruitInfoPo.city == city
+            ).order_by(RecruitInfoPo.create_time.desc()).limit(limit)
+            result = db.session.execute(stmt).scalars().all()
+            return [RecruitInfo.model_validate(item) for item in result] if result else []
+        except Exception as e:
+            print(f"根据城市查询招聘信息出错: {e}")
+            return []

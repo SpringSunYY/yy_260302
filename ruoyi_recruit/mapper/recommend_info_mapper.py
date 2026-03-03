@@ -157,4 +157,25 @@ class RecommendInfoMapper:
             db.session.rollback()
             print(f"批量删除用户推荐出错: {e}")
             return 0
+
+    @classmethod
+    def select_user_recommend_history(cls, user_id: int) -> Optional[RecommendInfo]:
+        """
+        获取用户最新的推荐记录
+
+        Args:
+            user_id (int): 用户ID
+
+        Returns:
+            Optional[RecommendInfo]: 推荐记录
+        """
+        try:
+            stmt = select(RecommendInfoPo).where(
+                RecommendInfoPo.user_id == user_id
+            ).order_by(RecommendInfoPo.create_time.desc()).limit(1)
+            result = db.session.execute(stmt).scalars().first()
+            return RecommendInfo.model_validate(result) if result else None
+        except Exception as e:
+            print(f"获取用户推荐历史出错: {e}")
+            return None
     

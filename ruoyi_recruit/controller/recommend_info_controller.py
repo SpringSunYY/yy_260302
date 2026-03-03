@@ -1,7 +1,6 @@
-
 from typing import List
 
-from flask import g
+from flask import g, request
 from flask_login import login_required
 from pydantic import BeforeValidator
 from typing_extensions import Annotated
@@ -10,11 +9,13 @@ from werkzeug.datastructures import FileStorage
 from ruoyi_common.base.model import AjaxResponse, TableResponse
 from ruoyi_common.constant import HttpStatus
 from ruoyi_common.descriptor.serializer import BaseSerializer, JsonSerializer
-from ruoyi_common.descriptor.validator import QueryValidator, BodyValidator, PathValidator, FileDownloadValidator, FileUploadValidator
+from ruoyi_common.descriptor.validator import QueryValidator, BodyValidator, PathValidator, FileDownloadValidator, \
+    FileUploadValidator
 from ruoyi_common.domain.enum import BusinessType
 from ruoyi_common.utils.base import ExcelUtil
+from ruoyi_common.utils.security_util import get_user_id, get_username
 from ruoyi_framework.descriptor.log import Log
-from ruoyi_framework.descriptor.permission import HasPerm, PreAuthorize
+from ruoyi_framework.descriptor.permission import HasPerm, PreAuthorize, AnyPerm
 from ruoyi_recruit.controller import recommend_info as recommend_info_bp
 from ruoyi_recruit.domain.entity import RecommendInfo
 from ruoyi_recruit.service.recommend_info_service import RecommendInfoService
@@ -28,6 +29,25 @@ recommend_info_service = RecommendInfoService()
 def _clear_page_context():
     if hasattr(g, "criterian_meta"):
         g.criterian_meta.page = None
+
+
+@gen.route('/content', methods=["GET"])
+@QueryValidator(is_page=True)
+@PreAuthorize(AnyPerm('recruit:recruitInfo:list,recruit:recruitInfo:query'))
+@JsonSerializer()
+def get_recommend_content():
+    """查询用户推荐列表"""
+    user_id = get_user_id()
+    user_name = get_username()
+    page_num = request.args.get('pageNum', 1, type=int)
+    page_size = request.args.get('pageSize', 10, type=int)
+    result = recommend_info_service.get_recommend_content(user_id, user_name, page_num, page_size)
+    return {'code': HttpStatus.SUCCESS,
+            'msg': '查询成功',
+            'rows': result.get('rows', []),
+            'total': result.get('total', 0)
+            }
+
 
 @gen.route('/list', methods=["GET"])
 @QueryValidator(is_page=True)
@@ -90,7 +110,6 @@ def update_recommend_info(dto: RecommendInfo):
     return AjaxResponse.from_error(msg='修改失败')
 
 
-
 @gen.route('/<ids>', methods=['DELETE'])
 @PathValidator()
 @PreAuthorize(HasPerm('recruit:recommendInfo:remove'))
@@ -128,6 +147,7 @@ def export_recommend_info(dto: RecommendInfo):
     excel_util = ExcelUtil(RecommendInfo)
     return excel_util.export_response(recommend_infos, "用户推荐数据")
 
+
 @gen.route('/importTemplate', methods=['POST'])
 @login_required
 @BaseSerializer()
@@ -136,14 +156,15 @@ def import_template():
     excel_util = ExcelUtil(RecommendInfo)
     return excel_util.import_template_response(sheetname="用户推荐数据")
 
+
 @gen.route('/importData', methods=['POST'])
 @FileUploadValidator()
 @PreAuthorize(HasPerm('recruit:recommendInfo:import'))
 @Log(title='用户推荐管理', business_type=BusinessType.IMPORT)
 @JsonSerializer()
 def import_data(
-    file: List[FileStorage],
-    update_support: Annotated[bool, BeforeValidator(lambda x: x != "0")]
+        file: List[FileStorage],
+        update_support: Annotated[bool, BeforeValidator(lambda x: x != "0")]
 ):
     """导入用户推荐数据"""
     file = file[0]

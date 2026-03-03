@@ -227,3 +227,49 @@ class ViewInfoMapper:
             return ViewInfo.model_validate(result) if result else None
         except Exception as e:
             print(f"查询用户是否浏览过该职位出错: {e}")
+
+    @classmethod
+    def select_user_latest_views(cls, user_id: int, limit: int = 30) -> List[ViewInfo]:
+        """
+        获取用户最新的N条浏览记录
+
+        Args:
+            user_id (int): 用户ID
+            limit (int): 返回记录数，默认30
+
+        Returns:
+            List[ViewInfo]: 用户浏览记录列表
+        """
+        try:
+            stmt = select(ViewInfoPo).where(
+                ViewInfoPo.user_id == user_id
+            ).order_by(ViewInfoPo.create_time.desc()).limit(limit)
+            result = db.session.execute(stmt).scalars().all()
+            return [ViewInfo.model_validate(item) for item in result] if result else []
+        except Exception as e:
+            print(f"获取用户最新浏览记录出错: {e}")
+            return []
+
+    @classmethod
+    def select_user_latest_views_after_time(cls, user_id: int, after_time: datetime, limit: int = 30) -> List[ViewInfo]:
+        """
+        获取用户在指定时间之后的N条浏览记录
+
+        Args:
+            user_id (int): 用户ID
+            after_time (datetime): 时间点
+            limit (int): 返回记录数，默认30
+
+        Returns:
+            List[ViewInfo]: 用户浏览记录列表
+        """
+        try:
+            stmt = select(ViewInfoPo).where(
+                ViewInfoPo.user_id == user_id,
+                ViewInfoPo.create_time > after_time
+            ).order_by(ViewInfoPo.create_time.desc()).limit(limit)
+            result = db.session.execute(stmt).scalars().all()
+            return [ViewInfo.model_validate(item) for item in result] if result else []
+        except Exception as e:
+            print(f"获取用户时间点之后浏览记录出错: {e}")
+            return []
