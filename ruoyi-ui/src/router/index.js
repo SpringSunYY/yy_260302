@@ -168,7 +168,14 @@ export const dynamicRoutes = [
     component: ()=>import('@/views/recruit/recruitInfo/detail'),
     hidden: true,
     permissions: ['recruit:recruitInfo:query'],
-  }
+  },
+  {
+    path: '/recommend/model',
+    name: 'RecommendInfoModel',
+    component: () => import('@/views/recruit/recommendInfo/model'),
+    hidden: true,
+    permissions: ['recruit:recruitInfo:query'],
+  },
 ]
 
 // 防止连续点击多次路由报错
