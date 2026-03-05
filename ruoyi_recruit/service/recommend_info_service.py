@@ -440,20 +440,14 @@ class RecommendInfoService:
             total_weight = sum(prefs.values())
             model_key = dimension_mapping.get(dimension, dimension)
             if total_weight > 0:
-                # 主营业务需要按 / 分割后的值分组显示
+                # 主营业务需要按 / 分割后的值分别显示
                 if dimension == 'mainBusiness':
-                    # 按 / 分割的组合键来聚合权重
-                    combined_prefs = defaultdict(float)
-                    for key, value in prefs.items():
-                        combined_prefs[key] += value
-                    # 将分割后的值重新组合
-                    merged_prefs = cls._merge_main_business(combined_prefs)
                     model_data[model_key] = [
-                        {'name': key, 'value': round(value, 4)} for key, value in merged_prefs.items()
+                        {'name': key, 'value': round(value, 2)} for key, value in prefs.items()
                     ]
                 else:
                     model_data[model_key] = [
-                        {'name': key, 'value': round(value, 4)} for key, value in prefs.items()
+                        {'name': key, 'value': round(value, 2)} for key, value in prefs.items()
                     ]
             else:
                 model_data[model_key] = []
@@ -596,11 +590,23 @@ class RecommendInfoService:
             preference['experience'][record.experience_required] += weight
         if record.education_required:
             preference['education'][record.education_required] += weight
-        # 主营业务支持 / 分割，多个值分别累加
+        # 主营业务处理：/ 或 , 分割的都分开显示，独立统计
         if record.main_business:
-            for mb in record.main_business.split('/'):
-                mb = mb.strip()
-                if mb:
+            # 同时支持 / 和 , 分割，分割后的每个值独立统计（去重）
+            seen = set()
+            # 先按 / 分割
+            parts = [mb.strip() for mb in record.main_business.split('/') if mb.strip()]
+            # 再按 , 分割
+            all_parts = []
+            for part in parts:
+                if ',' in part:
+                    all_parts.extend([p.strip() for p in part.split(',') if p.strip()])
+                else:
+                    all_parts.append(part)
+            # 去重后统计
+            for mb in all_parts:
+                if mb and mb not in seen:
+                    seen.add(mb)
                     preference['mainBusiness'][mb] += weight
         if record.enterprise_size:
             preference['enterpriseSize'][record.enterprise_size] += weight
@@ -691,12 +697,20 @@ class RecommendInfoService:
             )
             total_score += score * weights.get('education', 0)
 
-        # 主营业务（支持 / 分割匹配）
+        # 主营业务（支持 / 和 , 分割匹配）
         if recruit.main_business and pref_totals.get('mainBusiness', 0) > 0:
             # 获取用户偏好中所有的业务类型
             mb_prefs = user_preference.get('mainBusiness', {})
-            # 按 / 分割岗位的主营业务，分别匹配
-            recruit_mbs = [mb.strip() for mb in recruit.main_business.split('/') if mb.strip()]
+            # 先按 / 分割，再按 , 分割，分割后的每个值分别匹配
+            parts = [mb.strip() for mb in recruit.main_business.split('/') if mb.strip()]
+            recruit_mbs = []
+            for part in parts:
+                if ',' in part:
+                    recruit_mbs.extend([p.strip() for p in part.split(',') if p.strip()])
+                else:
+                    recruit_mbs.append(part)
+            # 去重
+            recruit_mbs = list(set(recruit_mbs))
             total_mb_score = 0.0
             matched_count = 0
             for mb in recruit_mbs:

@@ -108,7 +108,7 @@ export default {
     setOptions() {
 
       // 1. 计算总计
-      this.totalSum = this.chartData.reduce((sum, item) => sum + (item.value || 0), 0);
+      this.totalSum = this.chartData.reduce((sum, item) => sum + (item.value || 0), 0).toFixed(2);
       // 点击事件监听
       this.chart.on('click', (params) => {
         if (params.name && params.data) {
