@@ -227,7 +227,7 @@
 </template>
 
 <script>
-import { listRecruitInfo } from "@/api/recruit/recruitInfo";
+import {listRecruitInfo} from "@/api/recruit/recruitInfo";
 
 export default {
   name: "RecruitInfoQuery",
@@ -245,16 +245,22 @@ export default {
       // 查询参数
       queryParams: {
         pageNum: 1,
-        pageSize: 20,
+        pageSize: 10,
+        recruitId: null,
+        postType: null,
         post: null,
-        location: null,
+        postUpdateTime: null,
+        cityLevel: null,
+        province: null,
+        city: null,
         experienceRequired: null,
         educationRequired: null,
         skillRequired: null,
         enterpriseName: null,
-        listingStatus: null,
-        enterpriseSize: null,
         mainBusiness: null,
+        enterpriseSize: null,
+        financingSituation: null,
+        createTime: null,
       },
       // 是否还有更多数据
       hasMore: true,
@@ -269,6 +275,11 @@ export default {
     }
   },
   created() {
+    const type = this.$route.query && this.$route.query.type;
+    const key = this.$route.query && this.$route.query.key;
+    if (type && key) {
+      this.initQueryParams(type, key);
+    }
     this.getList();
   },
   mounted() {
@@ -284,6 +295,35 @@ export default {
     }
   },
   methods: {
+    initQueryParams(type, key) {
+      if (type === 'financingSituation') {
+        this.queryParams.financingSituation = key;
+      }
+      if (type === 'enterpriseSize') {
+        this.queryParams.enterpriseSize = key;
+      }
+      if (type === 'mainBusiness') {
+        this.queryParams.mainBusiness = key;
+      }
+      if (type === 'experienceRequired') {
+        this.queryParams.experienceRequired = key;
+      }
+      if (type === 'city') {
+        this.queryParams.city = key;
+      }
+      if (type === 'province') {
+        this.queryParams.province = key;
+      }
+      if (type === 'cityLevel') {
+        this.queryParams.cityLevel = key;
+      }
+      if (type === 'postType') {
+        this.queryParams.postType = key;
+      }
+      if (type === 'educationRequired') {
+        this.queryParams.educationRequired = key;
+      }
+    },
     /** 查询招聘信息表列表 */
     getList(reset = false) {
       if (reset) {
@@ -334,13 +374,13 @@ export default {
     },
     /** 打开详情页 */
     openDetail(row) {
-      const route = this.$router.resolve({ name: 'RecruitInfoDetail', query: { recruitId: row.recruitId } })
+      const route = this.$router.resolve({name: 'RecruitInfoDetail', query: {recruitId: row.recruitId}})
       window.open(route.href, '_blank')
     },
     /** 打开链接 */
     openLink(url) {
       if (url) {
-        this.openDetail({ recruitId: url })
+        this.openDetail({recruitId: url})
       }
     },
     /** 处理滚动事件 - 使用节流优化性能 */

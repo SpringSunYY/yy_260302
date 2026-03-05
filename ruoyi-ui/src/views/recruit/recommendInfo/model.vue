@@ -74,7 +74,7 @@
             <PieLayerRateCharts
               :chart-title="postTypeModelName"
               :chart-data="postTypeModelData"
-              @item-click="(item) => handleToQuery(item, 'brandName')"/>
+              @item-click="(item) => handleToQuery(item, 'postType')"/>
           </div>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="10">
@@ -82,6 +82,7 @@
             <PieGradientCharts
               :chart-data="cityLevelModelData"
               :chart-title="cityLevelModelName"
+              @item-click="(item) => handleToQuery(item, 'cityLevel')"/>
             />
           </div>
         </el-col>
@@ -90,14 +91,15 @@
             <PiePetalPoseCharts
               :chart-data="provinceModelData"
               :chart-title="provinceModelName"
-              @item-click="(item) => handleToQuery(item, 'energyType')"/>
+              @item-click="(item) => handleToQuery(item, 'province')"/>
           </div>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="14">
           <div class="chart-wrapper">
             <PieGradientRoseCharts
-              :chart-data="cityLevelModelData"
-              :chart-title="cityLevelModelName"
+              :chart-data="cityModelData"
+              :chart-title="cityModelName"
+              @item-click="(item) => handleToQuery(item, 'city')"/>
             />
           </div>
         </el-col>
@@ -107,7 +109,7 @@
               :symbol-size="600"
               :chart-data="experienceModelData"
               :chart-title="experienceModelName"
-              @item-click="(item) => handleToQuery(item, 'modelType')"/>
+              @item-click="(item) => handleToQuery(item, 'experienceRequired')"/>
           </div>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="10">
@@ -115,7 +117,7 @@
             <PiePetalTransparentPoseCharts
               :chart-data="educationModelData"
               :chart-title="educationModelName"
-              @item-click="(item) => handleToQuery(item, 'country')"/>
+              @item-click="(item) => handleToQuery(item, 'educationRequired')"/>
             />
           </div>
         </el-col>
@@ -124,7 +126,7 @@
             <ScatterRandomTooltipCharts
               :chart-data="mainBusinessModelData"
               :chart-title="mainBusinessModelName"
-              @item-click="(item) => handleToQuery(item, 'country')"/>
+              @item-click="(item) => handleToQuery(item, 'mainBusiness')"/>
             />
           </div>
         </el-col>
@@ -133,7 +135,7 @@
             <PieRoseLineCharts
               :chart-data="enterpriseSizeModelData"
               :chart-title="enterpriseSizeModelName"
-              @item-click="(item) => handleToQuery(item, 'country')"/>
+              @item-click="(item) => handleToQuery(item, 'enterpriseSize')"/>
             />
           </div>
         </el-col>
@@ -142,7 +144,7 @@
             <PieRoundCharts
               :chart-data="financingModelData"
               :chart-title="financingModelName"
-              @item-click="(item) => handleToQuery(item, 'country')"/>
+              @item-click="(item) => handleToQuery(item, 'financingSituation')"/>
           </div>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="14">
@@ -150,7 +152,7 @@
             <PieGhostingCharts
               :chart-data="salaryModelData"
               :chart-title="salaryModelName"
-              @item-click="(item) => handleToQuery(item, 'country')"/>
+            />
             />
           </div>
         </el-col>
@@ -286,7 +288,7 @@ export default {
     handleToQuery(item, type) {
       if (item && item.name) {
         const routeData = this.$router.resolve({
-          name: 'Query',
+          name: 'RecruitInfoQuery',
           query: {key: item.name, type: type}
         });
         window.open(routeData.href, '_blank');
