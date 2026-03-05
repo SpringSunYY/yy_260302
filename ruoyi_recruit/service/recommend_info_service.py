@@ -36,14 +36,14 @@ class RecommendInfoService:
     def _get_default_weights(cls) -> Dict[str, float]:
         """获取默认权重配置"""
         return {
-            'post_type': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_POST_TYPE_WEIGHT, "20.0")),
-            'city_level': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_CITY_LEVEL_WEIGHT, "10.0")),
+            'postType': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_POST_TYPE_WEIGHT, "20.0")),
+            'cityLevel': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_CITY_LEVEL_WEIGHT, "10.0")),
             'province': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_PROVINCE_WEIGHT, "15.0")),
             'city': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_CITY_WEIGHT, "20.0")),
             'experience': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_EXPERIENCE_WEIGHT, "10.0")),
             'education': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_EDUCATION_WEIGHT, "10.0")),
-            'main_business': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_MAIN_BUSINESS_WEIGHT, "5.0")),
-            'enterprise_size': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_ENTERPRISE_SIZE_WEIGHT, "5.0")),
+            'mainBusiness': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_MAIN_BUSINESS_WEIGHT, "5.0")),
+            'enterpriseSize': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_ENTERPRISE_SIZE_WEIGHT, "5.0")),
             'financing': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_FINANCING_WEIGHT, "3.0")),
             'salary': float(cls._get_config_value(ConfigConstants.CONFIG_KEY_SALARY_WEIGHT, "2.0"))
         }
@@ -422,14 +422,14 @@ class RecommendInfoService:
         model_data = {}
         # 维度名称映射到驼峰
         dimension_mapping = {
-            'post_type': 'postTypeModel',
-            'city_level': 'cityLevelModel',
+            'postType': 'postTypeModel',
+            'cityLevel': 'cityLevelModel',
             'province': 'provinceModel',
             'city': 'cityModel',
             'experience': 'experienceModel',
             'education': 'educationModel',
-            'main_business': 'mainBusinessModel',
-            'enterprise_size': 'enterpriseSizeModel',
+            'mainBusiness': 'mainBusinessModel',
+            'enterpriseSize': 'enterpriseSizeModel',
             'financing': 'financingModel',
             'salary': 'salaryModel'
         }
@@ -441,7 +441,7 @@ class RecommendInfoService:
             model_key = dimension_mapping.get(dimension, dimension)
             if total_weight > 0:
                 # 主营业务需要按 / 分割后的值分组显示
-                if dimension == 'main_business':
+                if dimension == 'mainBusiness':
                     # 按 / 分割的组合键来聚合权重
                     combined_prefs = defaultdict(float)
                     for key, value in prefs.items():
@@ -517,7 +517,7 @@ class RecommendInfoService:
             top_names = [v[0] for v in top_values]
 
             # 根据不同维度构建查询条件
-            if dim == 'post_type':
+            if dim == 'postType':
                 for name in top_names:
                     recruits = RecruitInfoMapper.select_recruit_info_by_post_type(name)
                     candidate_recruits.extend(recruits)
@@ -549,14 +549,14 @@ class RecommendInfoService:
                                    salary_range: List[int], now: datetime) -> Dict[str, Dict[str, float]]:
         """计算用户偏好"""
         preference = {
-            'post_type': defaultdict(float),
-            'city_level': defaultdict(float),
+            'postType': defaultdict(float),
+            'cityLevel': defaultdict(float),
             'province': defaultdict(float),
             'city': defaultdict(float),
             'experience': defaultdict(float),
             'education': defaultdict(float),
-            'main_business': defaultdict(float),
-            'enterprise_size': defaultdict(float),
+            'mainBusiness': defaultdict(float),
+            'enterpriseSize': defaultdict(float),
             'financing': defaultdict(float),
             'salary': defaultdict(float)
         }
@@ -585,9 +585,9 @@ class RecommendInfoService:
                                salary_range: List[int]):
         """累加用户偏好"""
         if record.post_type:
-            preference['post_type'][record.post_type] += weight
+            preference['postType'][record.post_type] += weight
         if record.city_level:
-            preference['city_level'][record.city_level] += weight
+            preference['cityLevel'][record.city_level] += weight
         if record.province:
             preference['province'][record.province] += weight
         if record.city:
@@ -601,9 +601,9 @@ class RecommendInfoService:
             for mb in record.main_business.split('/'):
                 mb = mb.strip()
                 if mb:
-                    preference['main_business'][mb] += weight
+                    preference['mainBusiness'][mb] += weight
         if record.enterprise_size:
-            preference['enterprise_size'][record.enterprise_size] += weight
+            preference['enterpriseSize'][record.enterprise_size] += weight
         if record.financing_situation:
             preference['financing'][record.financing_situation] += weight
         # 薪资区间处理
@@ -650,18 +650,18 @@ class RecommendInfoService:
         total_score = 0
 
         # 岗位大类
-        if recruit.post_type and pref_totals.get('post_type', 0) > 0:
+        if recruit.post_type and pref_totals.get('postType', 0) > 0:
             score = cls._calculate_dimension_similarity_fast(
-                recruit.post_type, user_preference['post_type'], pref_totals['post_type']
+                recruit.post_type, user_preference['postType'], pref_totals['postType']
             )
-            total_score += score * weights.get('post_type', 0)
+            total_score += score * weights.get('postType', 0)
 
         # 城市等级
-        if recruit.city_level and pref_totals.get('city_level', 0) > 0:
+        if recruit.city_level and pref_totals.get('cityLevel', 0) > 0:
             score = cls._calculate_dimension_similarity_fast(
-                recruit.city_level, user_preference['city_level'], pref_totals['city_level']
+                recruit.city_level, user_preference['cityLevel'], pref_totals['cityLevel']
             )
-            total_score += score * weights.get('city_level', 0)
+            total_score += score * weights.get('cityLevel', 0)
 
         # 省份
         if recruit.province and pref_totals.get('province', 0) > 0:
@@ -692,28 +692,28 @@ class RecommendInfoService:
             total_score += score * weights.get('education', 0)
 
         # 主营业务（支持 / 分割匹配）
-        if recruit.main_business and pref_totals.get('main_business', 0) > 0:
+        if recruit.main_business and pref_totals.get('mainBusiness', 0) > 0:
             # 获取用户偏好中所有的业务类型
-            mb_prefs = user_preference.get('main_business', {})
+            mb_prefs = user_preference.get('mainBusiness', {})
             # 按 / 分割岗位的主营业务，分别匹配
             recruit_mbs = [mb.strip() for mb in recruit.main_business.split('/') if mb.strip()]
             total_mb_score = 0.0
             matched_count = 0
             for mb in recruit_mbs:
                 if mb in mb_prefs:
-                    total_mb_score += mb_prefs[mb] / pref_totals['main_business']
+                    total_mb_score += mb_prefs[mb] / pref_totals['mainBusiness']
                     matched_count += 1
             if matched_count > 0:
                 # 有匹配，加上权重分数
                 mb_similarity = total_mb_score * (1 + 0.1 * (matched_count - 1)) if matched_count > 1 else total_mb_score
-                total_score += mb_similarity * weights.get('main_business', 0)
+                total_score += mb_similarity * weights.get('mainBusiness', 0)
 
         # 企业规模
-        if recruit.enterprise_size and pref_totals.get('enterprise_size', 0) > 0:
+        if recruit.enterprise_size and pref_totals.get('enterpriseSize', 0) > 0:
             score = cls._calculate_dimension_similarity_fast(
-                recruit.enterprise_size, user_preference['enterprise_size'], pref_totals['enterprise_size']
+                recruit.enterprise_size, user_preference['enterpriseSize'], pref_totals['enterpriseSize']
             )
-            total_score += score * weights.get('enterprise_size', 0)
+            total_score += score * weights.get('enterpriseSize', 0)
 
         # 融资情况
         if recruit.financing_situation and pref_totals.get('financing', 0) > 0:
