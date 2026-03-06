@@ -4,10 +4,10 @@
       <el-col :xs="24" :sm="24" :lg="6">
         <div class="chart-wrapper">
           <PieGradientCharts
-            :chart-data="priceSalesStatisticsData"
-            :chart-title="priceSalesStatisticsName"
+            :chart-data="cityLevelStatisticsData"
+            :chart-title="cityLevelStatisticsName"
             :label-show-value="false"
-            @item-click="(item) => handleToQuery(item, 'price')"
+            @item-click="(item) => handleToQuery(item, 'cityLevel')"
           />
         </div>
         <div class="chart-wrapper">
@@ -115,7 +115,7 @@ import BarRankingZoomCharts from "@/components/Echarts/BarRankingZoomCharts.vue"
 import BarLineZoomCharts from "@/components/Echarts/BarLineZoomCharts.vue";
 import TableRanking from "@/components/Echarts/TableRanking.vue";
 import LabelValueGrid from "@/components/Echarts/LabelValueList.vue";
-import {mapStatistics} from "@/api/recruit/statistics";
+import {cityLevelStatistics, mapStatistics} from "@/api/recruit/statistics";
 
 export default {
   name: "SalesStatisticsScreen",
@@ -157,39 +157,14 @@ export default {
       query: {},
       tableQueryList: [
         {
-          label: '品牌',
-          value: '全部',
-          key: 'brandName',
-        },
-        {
-          label: '价格',
-          value: '全部',
-          key: 'price',
-        },
-        {
-          label: '车型',
-          value: '全部',
-          key: 'modelType',
-        },
-        {
-          label: '能源',
-          value: '全部',
-          key: 'energyType',
-        },
-        {
-          label: '国家',
-          value: '全部',
-          key: 'country',
-        },
-        {
-          label: '车系',
-          value: '全部',
-          key: 'seriesName',
-        },
-        {
           label: '地区',
           value: '全国',
           key: 'address',
+        },
+        {
+          label: '城市等级',
+          value: '全部',
+          key: 'cityLevel',
         },
       ],
       tableColumns: [
@@ -197,9 +172,13 @@ export default {
         {label: '系列', prop: 'name'},
         {label: '速度', prop: 'value'}
       ],
-      //销量地图
+      //工资地图
       mapStatisticsData: [],
       mapStatisticsName: "工资地图",
+      //城市等级
+      cityLevelStatisticsData: [],
+      cityLevelStatisticsName: "城市等级",
+      cityLevelStatisticsNameOrigin: "城市等级",
       //价格销量
       priceSalesStatisticsData: [],
       priceSalesStatisticsName: "价格销量分析",
@@ -265,19 +244,12 @@ export default {
         addressName = addressName.replace('市', '')
       }
       this.resetLabelQuery('address', addressName)
-      this.priceSalesStatisticsName = addressName + ' ' + this.priceSalesStatisticsNameOrigin
-      this.monthSalesStatisticsName = addressName + ' ' + this.monthSalesStatisticsNameOrigin
-      this.energyTypeSalesStatisticsName = addressName + ' ' + this.energyTypeSalesStatisticsNameOrigin
-      this.brandSalesStatisticsName = addressName + ' ' + this.brandSalesStatisticsOrigin
-      this.countrySalesStatisticsName = addressName + ' ' + this.countrySalesStatisticsNameOrigin
-      this.modelTypeSalesStatisticsName = addressName + ' ' + this.modelTypeSalesStatisticsNameOrigin
-      this.seriesSalesStatisticsName = addressName + ' ' + this.seriesSalesStatisticsNameOrigin
-      this.salesPredictStatisticsName = addressName + ' ' + this.salesPredictStatisticsNameOrigin
-
+      this.cityLevelStatisticsName = addressName + '-' + this.cityLevelStatisticsNameOrigin
       this.getStatisticsData()
     },
     getStatisticsData() {
       this.getMapStatisticsData()
+      this.getCityLevelStatisticsData()
     },
     getMapStatisticsData() {
       mapStatistics(this.query).then(res => {
@@ -329,49 +301,42 @@ export default {
         )
       })
     },
+    //城市等级
+    getCityLevelStatisticsData() {
+      cityLevelStatistics({
+        address: this.query.address
+      }).then(res => {
+        if (!res.data) return
+        this.cityLevelStatisticsData = []
+        res.data.forEach(item => {
+          const tooltipText =
+            `平均工资：${item.avg}<br>` +
+            `最高工资：${item.max}<br>` +
+            `最低工资：${item.min}`
+          this.cityLevelStatisticsData.push({
+            name: item.name,
+            value: item.value,
+            tooltipText: tooltipText
+          })
+        })
+      })
+    },
     getDataByStatisticsClick() {
+      this.getMapStatisticsData()
       this.$modal.msgSuccess("查询中，请稍候。。。")
     },
     handleToQuery(item, type) {
       if (!item && !item.name) return
+      if (type === 'cityLevel') {
+        this.processCityLevelQuery(item, type)
+      }
       if (type === 'price') {
         this.processPriceQuery(item, type)
       }
-      if (type === 'energyType') {
-        this.processEnergyTypeQuery(item, type)
-      }
-      if (type === 'brandName') {
-        this.processBrandQuery(item, type)
-      }
-      if (type === 'country') {
-        this.processCountryQuery(item, type)
-      }
-      if (type === 'modelType') {
-        this.processModelTypeQuery(item, type)
-      }
-      if (type === 'seriesName') {
-        this.processSeriesQuery(item, type)
-      }
       this.getDataByStatisticsClick();
     },
-    processSeriesQuery(item, type) {
-      this.query.seriesId = item.seriesId;
-      this.resetLabelQuery(type, item.name)
-    },
-    processModelTypeQuery(item, type) {
-      this.query.modelType = item.name;
-      this.resetLabelQuery(type, item.name)
-    },
-    processCountryQuery(item, type) {
-      this.query.country = item.name;
-      this.resetLabelQuery(type, item.name)
-    },
-    processBrandQuery(item, type) {
-      this.query.brandName = item.name;
-      this.resetLabelQuery(type, item.name)
-    },
-    processEnergyTypeQuery(item, type) {
-      this.query.energyType = item.name;
+    processCityLevelQuery(item, type) {
+      this.query.cityLevel = item.name;
       this.resetLabelQuery(type, item.name)
     },
     processPriceQuery(item, type) {

@@ -302,11 +302,11 @@ export default {
               type: 'rect',
               shape: {width: 200, height: totalHeight, r: 8},
               style: {
-                fill: hexToRgba(this.colorMain,0.1),
+                fill: hexToRgba(this.colorMain, 0.1),
                 stroke: '#00cfff',
                 lineWidth: 1,
                 shadowBlur: 8,
-                shadowColor: hexToRgba(this.colorMain,0.1)
+                shadowColor: hexToRgba(this.colorMain, 0.1)
               }
             },
             {
@@ -373,7 +373,7 @@ export default {
           left: 'center',
           top: 10,
           text: this.chartTitle,
-          textStyle: {color: hexToRgba(this.colorMain,0.2), fontSize: 16}
+          textStyle: {color: hexToRgba(this.colorMain, 0.2), fontSize: 16}
         }],
         tooltip: {
           trigger: 'item',
@@ -397,15 +397,15 @@ export default {
           },
           itemStyle: {
             normal: {
-              areaColor: hexToRgba(this.colorMain,1),
-              borderColor: hexToRgba(this.colorMain,0.9),
+              areaColor: hexToRgba(this.colorMain, 1),
+              borderColor: hexToRgba(this.colorMain, 0.9),
               borderWidth: 1.3,
               shadowBlur: 15,
               shadowColor: 'rgb(58,115,192)',
               shadowOffsetX: 0,
               shadowOffsetY: 6
             },
-            emphasis: {areaColor: hexToRgba(this.colorMain,0.5), borderWidth: 1.6, shadowBlur: 25}
+            emphasis: {areaColor: hexToRgba(this.colorMain, 0.5), borderWidth: 1.6, shadowBlur: 25}
           }
         },
         ...(barSeriesData.length > 0 ? {
@@ -421,7 +421,7 @@ export default {
           xAxis: {
             type: 'value',
             position: 'top',
-            axisLine: {lineStyle: {color: hexToRgba(this.colorMain,1)}},
+            axisLine: {lineStyle: {color: hexToRgba(this.colorMain, 1)}},
             axisTick: {show: false},
             axisLabel: {
               interval: 'auto',
@@ -451,7 +451,14 @@ export default {
           bottom: '5%',
           calculable: true,
           seriesIndex: [0],
-          inRange: {color: [hexToRgba(this.colorMain,0.1), hexToRgba(this.colorMain,0.5), hexToRgba(this.colorMain,1)]},
+          inRange: {
+            color: [
+              hexToRgba(this.colorMain, 0.1),
+              hexToRgba(this.colorMain, 0.3),
+              hexToRgba(this.colorMain, 0.5),
+              hexToRgba(this.colorMain, 0.7),
+              hexToRgba(this.colorMain, 1)]
+          },
           textStyle: {color: '#24CFF4'},
         },
         series: [
@@ -465,8 +472,8 @@ export default {
             data: mapData,
             itemStyle: {
               normal: {
-                areaColor: hexToRgba(this.colorMain,0.9),
-                borderColor: hexToRgba(this.colorMain,0.8)
+                areaColor: hexToRgba(this.colorMain, 0.9),
+                borderColor: hexToRgba(this.colorMain, 0.8)
               }
             }
           },
@@ -501,7 +508,7 @@ export default {
             barWidth: 6,
             itemStyle: {
               normal: {
-                color: hexToRgba(this.colorMain,0.7),
+                color: hexToRgba(this.colorMain, 0.7),
                 barBorderRadius: [0, 6, 6, 0],
                 opacity: 0.8
               }

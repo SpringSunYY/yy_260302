@@ -33,9 +33,11 @@ class StatisticsService:
                 province_map[province]["weighted_avg_sum"] += float(po.avg or 0) * val
                 cur_min = float(po.min) if po.min is not None else None
                 cur_max = float(po.max) if po.max is not None else None
-                if cur_min is not None and (province_map[province]["min"] is None or cur_min < province_map[province]["min"]):
+                if cur_min is not None and (
+                        province_map[province]["min"] is None or cur_min < province_map[province]["min"]):
                     province_map[province]["min"] = cur_min
-                if cur_max is not None and (province_map[province]["max"] is None or cur_max > province_map[province]["max"]):
+                if cur_max is not None and (
+                        province_map[province]["max"] is None or cur_max > province_map[province]["max"]):
                     province_map[province]["max"] = cur_max
             result = []
             for province, data in province_map.items():
@@ -63,3 +65,22 @@ class StatisticsService:
                     max=round(float(po.max), 2) if po.max is not None else None
                 ))
             return result
+
+    @classmethod
+    def city_level_statistics(cls, statistics_entity) -> List[StatisticsVo]:
+        """
+        城市等级统计
+        """
+        pos = StatisticsMapper.city_level_statistics(statistics_entity)
+        if not pos:
+            return []
+        result = []
+        for po in pos:
+            result.append(StatisticsVo(
+                name=po.name,
+                value=int(po.value) if po.value is not None else None,
+                avg=round(float(po.avg), 2) if po.avg is not None else None,
+                min=round(float(po.min), 2) if po.min is not None else None,
+                max=round(float(po.max), 2) if po.max is not None else None
+            ))
+        return result

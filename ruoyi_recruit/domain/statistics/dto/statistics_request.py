@@ -15,6 +15,13 @@ class StatisticsRequest(BaseEntity):
         VoField(query=True),
         ExcelField(name="地区")
     ]
+    #城市等级
+    cityLevel: Annotated[
+        Optional[str],
+        Field(default=None, description="城市等级"),
+        VoField(query=True),
+        ExcelField(name="城市等级")
+    ]
     #岗位
     postType: Annotated[
         Optional[str],
