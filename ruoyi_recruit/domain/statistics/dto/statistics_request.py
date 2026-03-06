@@ -64,3 +64,17 @@ class StatisticsRequest(BaseEntity):
         VoField(query=True),
         ExcelField(name="技能")
     ]
+    # 最大工资
+    max_salary: Annotated[
+        Optional[str],
+        Field(default=None, description="最大工资"),
+        VoField(query=True),
+        ExcelField(name="最大工资")
+    ]
+    # 最小工资
+    min_salary: Annotated[
+        Optional[str],
+        Field(default=None, description="最小工资"),
+        VoField(query=True),
+        ExcelField(name="最小工资")
+    ]

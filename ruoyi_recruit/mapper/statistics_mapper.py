@@ -30,6 +30,10 @@ class StatisticsMapper:
             stmt = stmt.where(RecruitInfoPo.main_business.like(f"%{statistics_entity.main_business}%"))
         if statistics_entity.skill is not None:
             stmt = stmt.where(RecruitInfoPo.skill_required.like(f"%{statistics_entity.skill}%"))
+        if statistics_entity.max_salary is not None:
+            stmt = stmt.where(RecruitInfoPo.salary_month_avg < statistics_entity.max_salary)
+        if statistics_entity.min_salary is not None:
+            stmt = stmt.where(RecruitInfoPo.salary_month_avg >= statistics_entity.min_salary)
         return stmt
 
     @classmethod
@@ -265,3 +269,31 @@ class StatisticsMapper:
             return [StatisticsPo(**item) for item in result]
         except Exception as e:
             print(f"获取技能统计信息失败: {e}")
+
+    @classmethod
+    def salary_statistics(cls, statistics_entity) -> List[StatisticsPo]:
+        """
+        薪资统计
+        select count(*)     as value,
+           avg(salary_month_avg) as avg,
+           min(salary_month_avg) as min,
+           max(salary_month_avg) as max,
+           salary_month_avg as name
+        from tb_recruit_info
+        where full_address is not null
+        group by name
+        """
+        try:
+            stmt = select(func.count("*").label("value"),
+                          func.avg(RecruitInfoPo.salary_month_avg).label("avg"),
+                          func.max(RecruitInfoPo.salary_month_avg).label("max"),
+                          func.min(RecruitInfoPo.salary_month_avg).label("min"),
+                          RecruitInfoPo.salary_month_avg.label("name")
+                          ).select_from(RecruitInfoPo).group_by("name").order_by("value")
+            stmt = cls.build_where(stmt, statistics_entity)
+            result = db.session.execute(stmt).mappings().all()
+            if not result:
+                return []
+            return [StatisticsPo(**item) for item in result]
+        except Exception as e:
+            print(f"获取薪资统计信息失败: {e}")

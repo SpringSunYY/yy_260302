@@ -70,3 +70,12 @@ export function skillStatistics(query) {
     params: query
   })
 }
+
+//工资
+export function salaryStatistics(query) {
+  return request({
+    url: '/recruit/statistics/salary',
+    method: 'get',
+    params: query
+  })
+}

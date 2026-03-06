@@ -46,13 +46,13 @@ export default {
     cols: {
       type: Number,
       required: false,
-      default: 3,
+      default: 4,
       validator: val => val > 0
     },
     // 网格间隙 (Grid Gap)
     gap: {
       type: String,
-      default: '1.2vw' // 替换为 vw
+      default: '1vw' // 替换为 vw
     },
     // 是否显示重置按钮
     showReset: {
@@ -114,7 +114,7 @@ export default {
 }
 
 .item-value {
-  font-size: 1.5vw; /* 替换为 vw */
+  font-size: 1vw; /* 替换为 vw */
   color: #00ffc0;
   font-weight: 700;
   text-shadow: 0 0 8px rgba(0, 255, 192, 0.6);

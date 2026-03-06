@@ -25,7 +25,11 @@
         </div>
         <div class="chart-wrapper">
           <div class="chart-wrapper">
-
+            <PieGhostingCharts
+              :chart-data="salaryStatisticsData"
+              :chart-title="salaryStatisticsName"
+              @item-click="(item) => handleToQuery(item, 'salary')"
+            />
           </div>
         </div>
       </el-col>
@@ -100,10 +104,12 @@ import {
   mainBusinessStatistics,
   mapStatistics,
   postTypeStatistics,
+  salaryStatistics,
   skillStatistics
 } from "@/api/recruit/statistics";
 import PieLayerRateCharts from "@/components/Echarts/PieLayerRateCharts.vue";
 import PieRoseLineCharts from "@/components/Echarts/PieRoseLineCharts.vue";
+import PieGhostingCharts from "@/components/Echarts/PieGhostingCharts.vue";
 
 const baseQuery = [
   {
@@ -146,11 +152,17 @@ const baseQuery = [
     value: '全部',
     key: 'skill',
   },
+  {
+    label: '工资',
+    value: '全部',
+    key: 'salary',
+  }
 ]
 
 export default {
   name: "SalesStatisticsScreen",
   components: {
+    PieGhostingCharts,
     PieRoseLineCharts,
     PieLayerRateCharts,
     LabelValueGrid,
@@ -225,6 +237,10 @@ export default {
       skillStatisticsData: [],
       skillStatisticsName: "技能分析",
       skillStatisticsNameOrigin: "技能分析",
+      //工资
+      salaryStatisticsData: [],
+      salaryStatisticsName: "工资分析",
+      salaryStatisticsNameOrigin: "工资分析",
     }
   },
   created() {
@@ -262,6 +278,7 @@ export default {
       this.experienceStatisticsName = addressName + '-' + this.experienceStatisticsNameOrigin
       this.mainBusinessStatisticsName = addressName + '-' + this.mainBusinessStatisticsNameOrigin
       this.skillStatisticsName = addressName + '-' + this.skillStatisticsNameOrigin
+      this.salaryStatisticsName = addressName + '-' + this.salaryStatisticsNameOrigin
       this.getStatisticsData()
     },
     getStatisticsData() {
@@ -273,6 +290,7 @@ export default {
       this.getExperienceStatisticsData()
       this.getMainBusinessStatisticsData()
       this.getSkillStatisticsData()
+      this.getSalaryStatisticsData()
     },
     getMapStatisticsData() {
       mapStatistics(this.query).then(res => {
@@ -471,14 +489,36 @@ export default {
         })
       })
     },
+    //工资
+    getSalaryStatisticsData() {
+      salaryStatistics({
+        ...this.query,
+        maxSalary: null,
+        minSalary: null
+      }).then(res => {
+        if (!res.data) return
+        this.salaryStatisticsData = []
+        res.data.forEach(item => {
+          const tooltipText =
+            `平均工资：${item.avg}<br>` +
+            `最高工资：${item.max}<br>` +
+            `最低工资：${item.min}`
+          this.salaryStatisticsData.push({
+            name: item.name,
+            value: item.value,
+            tooltipText: tooltipText
+          })
+        })
+      })
+    },
     getDataByStatisticsClick() {
       this.getStatisticsData()
       this.$modal.msgSuccess("查询中，请稍候。。。")
     },
     handleToQuery(item, type) {
       if (!item && !item.name) return
-      if (type === 'price') {
-        this.processPriceQuery(item, type)
+      if (type === 'salary') {
+        this.processSalaryQuery(item, type)
       } else {
         this.builderQuery(item, type)
       }
@@ -488,11 +528,11 @@ export default {
       this.query[type] = item.name;
       this.resetLabelQuery(type, item.name)
     },
-    processPriceQuery(item, type) {
+    processSalaryQuery(item, type) {
       // 价格传过来的是'8k以下'、'10w-20w'等格式，解析成最小值和最大值
       const priceRange = this.parsePriceRange(item.name);
-      this.query.minPrice = priceRange.min;
-      this.query.maxPrice = priceRange.max;
+      this.query.maxSalary = priceRange.max;
+      this.query.minSalary = priceRange.min;
       this.resetLabelQuery(type, item.name)
     },
 
@@ -553,17 +593,7 @@ export default {
     },
     //重置查询
     reset() {
-      this.query = {
-        startTime: this.query.startTime,
-        endTime: this.query.endTime,
-        minPrice: null,
-        maxPrice: null,
-        modelType: null,
-        brandName: null,
-        country: null,
-        energyType: null,
-        seriesId: null
-      }
+      this.query = {}
       let addressName = '全国'; // 默认值
       for (const item of this.tableQueryList) {
         if (item.key === 'address') {
