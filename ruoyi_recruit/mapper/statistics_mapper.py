@@ -11,6 +11,7 @@ class StatisticsMapper:
     """
     统计信息映射类
     """
+
     @classmethod
     def build_where(cls, stmt, statistics_entity):
         if statistics_entity.address is not None:
@@ -19,6 +20,8 @@ class StatisticsMapper:
             stmt = stmt.where(RecruitInfoPo.city_level == statistics_entity.cityLevel)
         if statistics_entity.postType is not None:
             stmt = stmt.where(RecruitInfoPo.post_type == statistics_entity.postType)
+        if statistics_entity.education is not None:
+            stmt = stmt.where(RecruitInfoPo.education_required == statistics_entity.education)
         return stmt
 
     @classmethod
@@ -84,9 +87,8 @@ class StatisticsMapper:
             print(f"获取城市等级统计信息失败: {e}")
             return []
 
-
     @classmethod
-    def post_type_statistics(cls, statistics_entity)->List[StatisticsPo]:
+    def post_type_statistics(cls, statistics_entity) -> List[StatisticsPo]:
         """
         岗位统计
         select count(*)     as value,
@@ -112,4 +114,33 @@ class StatisticsMapper:
             return [StatisticsPo(**item) for item in result]
         except Exception as e:
             print(f"获取岗位统计信息失败: {e}")
+            return []
+
+    @classmethod
+    def education_statistics(cls, statistics_entity) -> List[StatisticsPo]:
+        """
+        学历统计
+        select count(*)     as value,
+           avg(salary_month_avg) as avg,
+           min(salary_month_avg) as min,
+           max(salary_month_avg) as max,
+           education_required as name
+        from tb_recruit_info
+        where full_address is not null
+        group by name
+        """
+        try:
+            stmt = select(func.count("*").label("value"),
+                          func.avg(RecruitInfoPo.salary_month_avg).label("avg"),
+                          func.max(RecruitInfoPo.salary_month_avg).label("max"),
+                          func.min(RecruitInfoPo.salary_month_avg).label("min"),
+                          RecruitInfoPo.education_required.label("name")
+                          ).select_from(RecruitInfoPo).group_by("name").order_by("value")
+            stmt = cls.build_where(stmt, statistics_entity)
+            result = db.session.execute(stmt).mappings().all()
+            if not result:
+                return []
+            return [StatisticsPo(**item) for item in result]
+        except Exception as e:
+            print(f"获取学历统计信息失败: {e}")
             return []

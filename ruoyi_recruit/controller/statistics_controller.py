@@ -57,3 +57,19 @@ def post_type_statistics(request: StatisticsRequest):
     if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.post_type_statistics(statistics_entity))
+
+
+#学历
+@gen.route('/education', methods=["GET"])
+@QueryValidator(is_page=True)
+@PreAuthorize(HasPerm('recruit:recruitInfo:statistics'))
+@JsonSerializer()
+def education_statistics(request: StatisticsRequest):
+    statistics_entity = StatisticsRequest()
+    # 转换dto到Entity对象
+    for attr in request.model_fields.keys():
+        if hasattr(statistics_entity, attr):
+            setattr(statistics_entity, attr, getattr(request, attr))
+    if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
+        statistics_entity.address = None
+    return AjaxResponse.from_success(data=service.education_statistics(statistics_entity))

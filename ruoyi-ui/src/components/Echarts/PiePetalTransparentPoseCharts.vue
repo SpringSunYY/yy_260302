@@ -155,8 +155,7 @@ export default {
           }
         },
         tooltip: {
-          trigger: 'item',
-          padding: 10,
+          padding: [10, 15],
           backgroundColor: 'rgba(0, 30, 60, 0.9)',
           borderColor: '#0be5ff',
           borderWidth: 1,
@@ -166,12 +165,11 @@ export default {
             res += `<b style="font-size:16px; color:${params.borderColor}">${params.name}</b><br/>`;
 
             if (this.showExtraInfo) {
-              res += `总数：<span style="color:#0be5ff">${total}</span><br/>`;
+              res += `总数：<span style="color:#0be5ff">${total}</span> `;
               res += `平均：<span style="color:#0be5ff">${avg}</span><br/>`;
             }
 
-            res += `当前数值：${params.value}<br/>`;
-            res += `占比：${params.percent}%<br/>`;
+            res += `当前数值：${params.value}(${params.percent}%)<br/>`;
 
             if (params.data.tooltipText) {
               const formattedText = params.data.tooltipText.replace(/\n/g, '<br/>');

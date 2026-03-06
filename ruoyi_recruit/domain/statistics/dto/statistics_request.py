@@ -29,3 +29,10 @@ class StatisticsRequest(BaseEntity):
         VoField(query=True),
         ExcelField(name="岗位")
     ]
+    #学历
+    education: Annotated[
+        Optional[str],
+        Field(default=None, description="学历"),
+        VoField(query=True),
+        ExcelField(name="学历")
+    ]

@@ -77,11 +77,10 @@
             :data-list="tableQueryList"/>
         </div>
         <div class="chart-wrapper">
-          <PiePetalPoseCharts
-            :chart-data="energyTypeSalesStatisticsData"
-            :chart-title="energyTypeSalesStatisticsName"
-            :label-show-value="false"
-            @item-click="(item) => handleToQuery(item, 'energyType')"/>
+          <PiePetalTransparentPoseCharts
+            :chart-data="educationStatisticsData"
+            :chart-title="educationStatisticsName"
+            @item-click="(item) => handleToQuery(item, 'education')"/>
         </div>
         <div class="rank-chart-wrapper">
           <BarRankingZoomCharts
@@ -114,7 +113,7 @@ import BarRankingZoomCharts from "@/components/Echarts/BarRankingZoomCharts.vue"
 import BarLineZoomCharts from "@/components/Echarts/BarLineZoomCharts.vue";
 import TableRanking from "@/components/Echarts/TableRanking.vue";
 import LabelValueGrid from "@/components/Echarts/LabelValueList.vue";
-import {cityLevelStatistics, mapStatistics, postTypeStatistics} from "@/api/recruit/statistics";
+import {cityLevelStatistics, educationStatistics, mapStatistics, postTypeStatistics} from "@/api/recruit/statistics";
 import PieLayerRateCharts from "@/components/Echarts/PieLayerRateCharts.vue";
 
 export default {
@@ -172,6 +171,11 @@ export default {
           value: '全部',
           key: 'postType',
         },
+        {
+          label: '学历',
+          value: '全部',
+          key: 'education',
+        },
       ],
       tableColumns: [
         {label: '封面', prop: 'coverImage', show: false},
@@ -189,6 +193,10 @@ export default {
       postTypeStatisticsData: [],
       postTypeStatisticsName: "岗位分析",
       postTypeStatisticsNameOrigin: "岗位分析",
+      //学历
+      educationStatisticsData: [],
+      educationStatisticsName: "学历分析",
+      educationStatisticsNameOrigin: "学历分析",
       //价格销量
       priceSalesStatisticsData: [],
       priceSalesStatisticsName: "价格销量分析",
@@ -256,12 +264,14 @@ export default {
       this.resetLabelQuery('address', addressName)
       this.cityLevelStatisticsName = addressName + '-' + this.cityLevelStatisticsNameOrigin
       this.postTypeStatisticsName = addressName + '-' + this.postTypeStatisticsNameOrigin
+      this.educationStatisticsName = addressName + '-' + this.educationStatisticsNameOrigin
       this.getStatisticsData()
     },
     getStatisticsData() {
       this.getMapStatisticsData()
       this.getCityLevelStatisticsData()
       this.getPostTypeStatisticsData()
+      this.getEducationStatisticsData()
     },
     getMapStatisticsData() {
       mapStatistics(this.query).then(res => {
@@ -353,6 +363,26 @@ export default {
         })
       })
     },
+    //学历
+    getEducationStatisticsData() {
+      educationStatistics({
+        address: this.query.address
+      }).then(res => {
+        if (!res.data) return
+        this.educationStatisticsData = []
+        res.data.forEach(item => {
+          const tooltipText =
+            `平均工资：${item.avg}<br>` +
+            `最高工资：${item.max}<br>` +
+            `最低工资：${item.min}`
+          this.educationStatisticsData.push({
+            name: item.name,
+            value: item.value,
+            tooltipText: tooltipText
+          })
+        })
+      })
+    },
     getDataByStatisticsClick() {
       this.getMapStatisticsData()
       this.$modal.msgSuccess("查询中，请稍候。。。")
@@ -365,10 +395,17 @@ export default {
       if (type === 'postType') {
         this.processPostTypeQuery(item, type)
       }
+      if (type === 'education') {
+        this.processEducationQuery(item, type)
+      }
       if (type === 'price') {
         this.processPriceQuery(item, type)
       }
       this.getDataByStatisticsClick();
+    },
+    processEducationQuery(item, type) {
+      this.query.education = item.name;
+      this.resetLabelQuery(type, item.name)
     },
     processCityLevelQuery(item, type) {
       this.query.cityLevel = item.name;

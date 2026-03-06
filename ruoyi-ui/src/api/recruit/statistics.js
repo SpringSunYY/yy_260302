@@ -26,3 +26,12 @@ export function postTypeStatistics(query) {
     params: query
   })
 }
+
+//学历
+export function educationStatistics(query) {
+  return request({
+    url: '/recruit/statistics/education',
+    method: 'get',
+    params: query
+  })
+}

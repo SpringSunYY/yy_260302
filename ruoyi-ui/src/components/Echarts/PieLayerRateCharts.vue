@@ -213,8 +213,8 @@ export default {
       const option = {
         backgroundColor: this.backgroundColor,
         tooltip: {
+          backgroundColor: 'rgba(0, 30, 60, 0.9)',
           trigger: 'item',
-          backgroundColor: 'transparent',
           borderColor: 'transparent',
           textStyle: {
             color: '#fff'

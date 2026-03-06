@@ -1,5 +1,6 @@
 from typing import List
 
+from ruoyi_recruit.domain.statistics.po import StatisticsPo
 from ruoyi_recruit.domain.statistics.vo import StatisticsVo
 from ruoyi_recruit.mapper import StatisticsMapper
 
@@ -72,24 +73,29 @@ class StatisticsService:
         城市等级统计
         """
         pos = StatisticsMapper.city_level_statistics(statistics_entity)
-        if not pos:
-            return []
-        result = []
-        for po in pos:
-            result.append(StatisticsVo(
-                name=po.name,
-                value=int(po.value) if po.value is not None else None,
-                avg=round(float(po.avg), 2) if po.avg is not None else None,
-                min=round(float(po.min), 2) if po.min is not None else None,
-                max=round(float(po.max), 2) if po.max is not None else None
-            ))
-        return result
+        return cls.build_result(pos)
 
-    def post_type_statistics(self, statistics_entity) -> List[StatisticsVo]:
+    @classmethod
+    def post_type_statistics(cls, statistics_entity) -> List[StatisticsVo]:
         """
         岗位统计
         """
         pos = StatisticsMapper.post_type_statistics(statistics_entity)
+        return cls.build_result(pos)
+
+    @classmethod
+    def education_statistics(cls, statistics_entity) -> List[StatisticsVo]:
+        """
+        学历统计
+        """
+        pos = StatisticsMapper.education_statistics(statistics_entity)
+        return cls.build_result(pos)
+
+    @classmethod
+    def build_result(cls, pos: List[StatisticsPo]) -> List[StatisticsVo]:
+        """
+        构建结果
+        """
         if not pos:
             return []
         result = []
