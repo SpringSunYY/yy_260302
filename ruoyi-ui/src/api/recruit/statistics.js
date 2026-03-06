@@ -44,3 +44,12 @@ export function enterpriseSizeStatistics(query) {
     params: query
   })
 }
+
+//经验
+export function experienceStatistics(query) {
+  return request({
+    url: '/recruit/statistics/experience',
+    method: 'get',
+    params: query
+  })
+}

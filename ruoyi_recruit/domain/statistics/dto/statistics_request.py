@@ -43,3 +43,10 @@ class StatisticsRequest(BaseEntity):
         VoField(query=True),
         ExcelField(name="企业规模")
     ]
+    # 经验
+    experience: Annotated[
+        Optional[str],
+        Field(default=None, description="经验"),
+        VoField(query=True),
+        ExcelField(name="经验")
+    ]

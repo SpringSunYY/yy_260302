@@ -56,9 +56,7 @@
           />
         </div>
         <div class="expert-chart-wrapper">
-          <BarLineZoomCharts
-            :chart-title="salesPredictStatisticsName"
-            :chart-data="salesPredictStatisticsData"
+          <ScatterRandomTooltipCharts
           />
         </div>
         <div class="center-chart-wrapper">
@@ -82,11 +80,11 @@
             @item-click="(item) => handleToQuery(item, 'education')"/>
         </div>
         <div class="rank-chart-wrapper">
-          <BarRankingZoomCharts
-            :chart-data="seriesSalesStatisticsData"
-            :chart-title="seriesSalesStatisticsName"
-            :displayCount="12"
-            @item-click="(item) => handleToQuery(item, 'seriesName')"/>
+          <PiePetalTransparentPoseCharts
+            :label-show-value="false"
+            :chart-data="experienceStatisticsData"
+            :chart-title="experienceStatisticsName"
+            @item-click="(item) => handleToQuery(item, 'experience')"/>
         </div>
         <div class="chart-wrapper">
           <PieGradientRoseCharts
@@ -116,6 +114,7 @@ import {
   cityLevelStatistics,
   educationStatistics,
   enterpriseSizeStatistics,
+  experienceStatistics,
   mapStatistics,
   postTypeStatistics
 } from "@/api/recruit/statistics";
@@ -147,6 +146,11 @@ const baseQuery = [
     label: '企业规模',
     value: '全部',
     key: 'enterpriseSize',
+  },
+  {
+    label: '经验',
+    value: '全部',
+    key: 'experience',
   },
 ]
 
@@ -215,41 +219,10 @@ export default {
       enterpriseSizeStatisticsData: [],
       enterpriseSizeStatisticsName: "企业规模分析",
       enterpriseSizeStatisticsNameOrigin: "企业规模分析",
-      //价格销量
-      priceSalesStatisticsData: [],
-      priceSalesStatisticsName: "价格销量分析",
-      priceSalesStatisticsNameOrigin: "价格销量分析",
-      //能源类型
-      energyTypeSalesStatisticsData: [],
-      energyTypeSalesStatisticsName: "能源类型分析",
-      energyTypeSalesStatisticsNameOrigin: "能源类型分析",
-      //品牌
-      brandSalesStatisticsData: [],
-      brandSalesStatisticsName: "品牌分析",
-      brandSalesStatisticsOrigin: "品牌",
-      //国家
-      countrySalesStatisticsData: [],
-      countrySalesStatisticsName: "国家分析",
-      countrySalesStatisticsNameOrigin: "国家分析",
-      //车型
-      modelTypeSalesStatisticsData: [],
-      modelTypeSalesStatisticsName: "车型分析",
-      modelTypeSalesStatisticsNameOrigin: "车型分析",
-      //月份
-      monthSalesStatisticsData: [],
-      monthSalesStatisticsName: "月份销量分析",
-      monthSalesStatisticsNameOrigin: "月份销量分析",
-      //车系
-      seriesSalesStatisticsData: [],
-      seriesSalesStatisticsName: "车系排行",
-      seriesSalesStatisticsNameOrigin: "车系排行",
-      //销量预测
-      salesPredictStatisticsData: [],
-      salesPredictStatisticsName: "销量预测",
-      salesPredictStatisticsNameOrigin: "销量预测",
-      //百公里加速
-      accelerationStatisticsData: [],
-      accelerationStatisticsName: "百公里加速",
+      //经验
+      experienceStatisticsData: [],
+      experienceStatisticsName: "经验分析",
+      experienceStatisticsNameOrigin: "经验分析",
     }
   },
   created() {
@@ -284,6 +257,7 @@ export default {
       this.postTypeStatisticsName = addressName + '-' + this.postTypeStatisticsNameOrigin
       this.educationStatisticsName = addressName + '-' + this.educationStatisticsNameOrigin
       this.enterpriseSizeStatisticsName = addressName + '-' + this.enterpriseSizeStatisticsNameOrigin
+      this.experienceStatisticsName = addressName + '-' + this.experienceStatisticsNameOrigin
       this.getStatisticsData()
     },
     getStatisticsData() {
@@ -292,6 +266,7 @@ export default {
       this.getPostTypeStatisticsData()
       this.getEducationStatisticsData()
       this.getEnterpriseSizeStatisticsData()
+      this.getExperienceStatisticsData()
     },
     getMapStatisticsData() {
       mapStatistics(this.query).then(res => {
@@ -427,43 +402,42 @@ export default {
         })
       })
     },
+    //经验
+    getExperienceStatisticsData() {
+      experienceStatistics({
+        ...this.query,
+        experience: null
+      }).then(res => {
+        if (!res.data) return
+        this.experienceStatisticsData = []
+        res.data.forEach(item => {
+          const tooltipText =
+            `平均工资：${item.avg}<br>` +
+            `最高工资：${item.max}<br>` +
+            `最低工资：${item.min}`
+          this.experienceStatisticsData.push({
+            name: item.name,
+            value: item.value,
+            tooltipText: tooltipText
+          })
+        })
+      })
+    },
     getDataByStatisticsClick() {
       this.getStatisticsData()
       this.$modal.msgSuccess("查询中，请稍候。。。")
     },
     handleToQuery(item, type) {
       if (!item && !item.name) return
-      if (type === 'cityLevel') {
-        this.processCityLevelQuery(item, type)
-      }
-      if (type === 'postType') {
-        this.processPostTypeQuery(item, type)
-      }
-      if (type === 'education') {
-        this.processEducationQuery(item, type)
-      }
-      if (type === 'enterpriseSize') {
-        this.processEnterpriseSizeQuery(item, type)
-      }
       if (type === 'price') {
         this.processPriceQuery(item, type)
+      } else {
+        this.builderQuery(item, type)
       }
       this.getDataByStatisticsClick();
     },
-    processEnterpriseSizeQuery(item, type) {
-      this.query.enterpriseSize = item.name;
-      this.resetLabelQuery(type, item.name)
-    },
-    processEducationQuery(item, type) {
-      this.query.education = item.name;
-      this.resetLabelQuery(type, item.name)
-    },
-    processCityLevelQuery(item, type) {
-      this.query.cityLevel = item.name;
-      this.resetLabelQuery(type, item.name)
-    },
-    processPostTypeQuery(item, type) {
-      this.query.postType = item.name;
+    builderQuery(item, type) {
+      this.query[type] = item.name;
       this.resetLabelQuery(type, item.name)
     },
     processPriceQuery(item, type) {

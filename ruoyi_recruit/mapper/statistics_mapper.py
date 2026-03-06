@@ -13,7 +13,7 @@ class StatisticsMapper:
     """
 
     @classmethod
-    def build_where(cls, stmt, statistics_entity):
+    def build_where(cls, stmt, statistics_entity: StatisticsRequest):
         if statistics_entity.address is not None:
             stmt = stmt.where(RecruitInfoPo.full_address.like(f"%{statistics_entity.address}%"))
         if statistics_entity.cityLevel is not None:
@@ -24,6 +24,8 @@ class StatisticsMapper:
             stmt = stmt.where(RecruitInfoPo.education_required == statistics_entity.education)
         if statistics_entity.enterpriseSize is not None:
             stmt = stmt.where(RecruitInfoPo.enterprise_size == statistics_entity.enterpriseSize)
+        if statistics_entity.experience is not None:
+            stmt = stmt.where(RecruitInfoPo.experience_required == statistics_entity.experience)
         return stmt
 
     @classmethod
@@ -175,3 +177,31 @@ class StatisticsMapper:
         except Exception as e:
             print(f"获取企业规模统计信息失败: {e}")
             return []
+
+    @classmethod
+    def experience_statistics(cls, statistics_entity)-> List[StatisticsPo]:
+        """
+        经验统计
+        select count(*)     as value,
+           avg(salary_month_avg) as avg,
+           min(salary_month_avg) as min,
+           max(salary_month_avg) as max,
+           experience_required as name
+        from tb_recruit_info
+        where full_address is not null
+        group by name
+        """
+        try:
+            stmt = select(func.count("*").label("value"),
+                          func.avg(RecruitInfoPo.salary_month_avg).label("avg"),
+                          func.max(RecruitInfoPo.salary_month_avg).label("max"),
+                          func.min(RecruitInfoPo.salary_month_avg).label("min"),
+                          RecruitInfoPo.experience_required.label("name")
+                          ).select_from(RecruitInfoPo).group_by("name").order_by("value")
+            stmt = cls.build_where(stmt, statistics_entity)
+            result = db.session.execute(stmt).mappings().all()
+            if not result:
+                return []
+            return [StatisticsPo(**item) for item in result]
+        except Exception as e:
+            print(f"获取经验统计信息失败: {e}")

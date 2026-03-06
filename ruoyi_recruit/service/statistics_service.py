@@ -115,3 +115,11 @@ class StatisticsService:
         """
         pos = StatisticsMapper.enterprise_size_statistics(statistics_entity)
         return cls.build_result(pos)
+
+    @classmethod
+    def experience_statistics(cls, statistics_entity)-> List[StatisticsVo]:
+        """
+        经验统计
+        """
+        pos = StatisticsMapper.experience_statistics(statistics_entity)
+        return cls.build_result(pos)
