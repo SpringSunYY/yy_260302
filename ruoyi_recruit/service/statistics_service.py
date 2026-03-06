@@ -180,5 +180,5 @@ class StatisticsService:
 
         result.sort(key=lambda x: x.value if x.value else 0, reverse=True)
         # 返回前100
-        result = result[:100]
+        result = result[:50]
         return result

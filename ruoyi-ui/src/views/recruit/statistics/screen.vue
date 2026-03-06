@@ -59,7 +59,6 @@
           <ScatterRandomTooltipCharts
             :chart-title="mainBusinessStatisticsName"
             :chart-data="mainBusinessStatisticsData"
-            :symbol-size="10"
             @item-click="(item) => handleToQuery(item, 'mainBusiness')"
           />
         </div>
