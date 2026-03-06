@@ -272,4 +272,36 @@ export function generateRandomColor(colorList) {
     const b = Math.floor(Math.random() * 155 + 150)
     return `rgb(${r},${g},${b},0.9)`
   }
-};
+}
+
+export function hexToRgba(color,opacity) {
+  // 处理不完整的 rgba(r, g, b) 格式（缺少透明度值）
+  const incompleteRgbaMatch = color.match(/rgba\((\d+),\s*(\d+),\s*(\d+)\)$/);
+  if (incompleteRgbaMatch) {
+    const r = parseInt(incompleteRgbaMatch[1]);
+    const g = parseInt(incompleteRgbaMatch[2]);
+    const b = parseInt(incompleteRgbaMatch[3]);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  }
+
+  // 处理标准 rgb(r, g, b) 格式
+  const rgbMatch = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+  if (rgbMatch) {
+    const r = parseInt(rgbMatch[1]);
+    const g = parseInt(rgbMatch[2]);
+    const b = parseInt(rgbMatch[3]);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  }
+
+  // 处理标准 rgba(r, g, b, a) 格式
+  const rgbaMatch = color.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+  if (rgbaMatch) {
+    const r = parseInt(rgbaMatch[1]);
+    const g = parseInt(rgbaMatch[2]);
+    const b = parseInt(rgbaMatch[3]);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  }
+
+  // 如果都不匹配，返回默认值
+  return color;
+}

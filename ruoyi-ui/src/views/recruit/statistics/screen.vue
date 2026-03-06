@@ -50,10 +50,11 @@
       <el-col :xs="24" :sm="24" :lg="12">
         <div class="map-chart-wrapper">
           <MapCharts
-            :chart-data="salesMapStatisticsData"
-            :chart-name="salesMapStatisticsName"
-            default-index-name="销量"
-            @getData="getMapData"
+            :chart-data="mapStatisticsData"
+            :chart-name="mapStatisticsName"
+            default-index-name="岗位数"
+            :summary-index-names="['岗位数']"
+            @clickRegion="getMapData"
           />
         </div>
         <div class="expert-chart-wrapper">
@@ -100,11 +101,6 @@
         </div>
       </el-col>
     </el-row>
-    <DateRangePicker
-      @change="onDateChange"
-      top="7%"
-      left="25%"
-    />
   </div>
 </template>
 <script>
@@ -119,14 +115,11 @@ import BarRankingZoomCharts from "@/components/Echarts/BarRankingZoomCharts.vue"
 import BarLineZoomCharts from "@/components/Echarts/BarLineZoomCharts.vue";
 import TableRanking from "@/components/Echarts/TableRanking.vue";
 import LabelValueGrid from "@/components/Echarts/LabelValueList.vue";
-import DateRangePicker from "@/components/Echarts/DateRangePicker.vue";
-
-import dayjs from "dayjs";
+import {mapStatistics} from "@/api/recruit/statistics";
 
 export default {
   name: "SalesStatisticsScreen",
   components: {
-    DateRangePicker,
     LabelValueGrid,
     TableRanking,
     BarLineZoomCharts,
@@ -161,10 +154,7 @@ export default {
   },
   data() {
     return {
-      query: {
-        startTime: dayjs().subtract(2, "month").format('YYYYMM'),
-        endTime: dayjs().format('YYYYMM')
-      },
+      query: {},
       tableQueryList: [
         {
           label: '品牌',
@@ -208,8 +198,8 @@ export default {
         {label: '速度', prop: 'value'}
       ],
       //销量地图
-      salesMapStatisticsData: [],
-      salesMapStatisticsName: "销量地图",
+      mapStatisticsData: [],
+      mapStatisticsName: "工资地图",
       //价格销量
       priceSalesStatisticsData: [],
       priceSalesStatisticsName: "价格销量分析",
@@ -248,9 +238,11 @@ export default {
     }
   },
   created() {
+    this.getStatisticsData()
   },
   methods: {
     getMapData(data) {
+      if (!data.canDrillDown && !data.isBack) return
       this.query.address = data.name
       let addressName = data.name
       if (addressName === '中华人民共和国') {
@@ -281,16 +273,64 @@ export default {
       this.modelTypeSalesStatisticsName = addressName + ' ' + this.modelTypeSalesStatisticsNameOrigin
       this.seriesSalesStatisticsName = addressName + ' ' + this.seriesSalesStatisticsNameOrigin
       this.salesPredictStatisticsName = addressName + ' ' + this.salesPredictStatisticsNameOrigin
+
+      this.getStatisticsData()
+    },
+    getStatisticsData() {
+      this.getMapStatisticsData()
+    },
+    getMapStatisticsData() {
+      mapStatistics(this.query).then(res => {
+        if (!res.data) return
+        //构建结果
+        this.mapStatisticsData = []
+        //岗位数、平均工资、最高工资、最低工资
+        let postNum = []
+        let avgSalary = []
+        let maxSalary = []
+        let minSalary = []
+        for (let i = 0; i < res.data.length; i++) {
+          const item = res.data[i]
+          const name = item.name
+          postNum.push({
+            location: name,
+            value: item.value
+          })
+          avgSalary.push({
+            location: name,
+            value: item.avg
+          })
+          maxSalary.push({
+            location: name,
+            value: item.max
+          })
+          minSalary.push({
+            location: name,
+            value: item.min
+          })
+        }
+        this.mapStatisticsData.push(
+          {
+            name: '岗位数',
+            value: postNum
+          },
+          {
+            name: '平均工资',
+            value: avgSalary
+          },
+          {
+            name: '最高工资',
+            value: maxSalary
+          },
+          {
+            name: '最低工资',
+            value: minSalary
+          }
+        )
+      })
     },
     getDataByStatisticsClick() {
-      this.getSalesMapStatisticsData()
-      this.getSalesPredictStatisticsData()
-      this.getAccelerationStatisticsData()
       this.$modal.msgSuccess("查询中，请稍候。。。")
-    },
-    onDateChange(date) {
-      this.query.startTime = dayjs(date[0]).format('YYYYMM');
-      this.query.endTime = dayjs(date[1]).format('YYYYMM');
     },
     handleToQuery(item, type) {
       if (!item && !item.name) return

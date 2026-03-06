@@ -5,3 +5,4 @@ from .like_info_mapper import LikeInfoMapper
 from .recommend_info_mapper import RecommendInfoMapper
 from .recruit_info_mapper import RecruitInfoMapper
 from .view_info_mapper import ViewInfoMapper
+from .statistics_mapper import StatisticsMapper

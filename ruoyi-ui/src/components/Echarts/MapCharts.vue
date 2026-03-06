@@ -8,6 +8,7 @@
 <script>
 import * as echarts from 'echarts';
 import {getGeoJson} from '@/api/file.js';
+import {hexToRgba} from "@/utils/ruoyi";
 
 export default {
   name: 'MapCharts',
@@ -29,13 +30,21 @@ export default {
       type: String,
       default: "用户人数"
     },
+    summaryIndexNames: {
+      type: Array,
+      default: () => []
+    },
     returnLevel: {
       type: Array,
       default: () => ['province', 'china']
     },
     maxLevel: {
       type: Number,
-      default: 3
+      default: 2
+    },
+    colorMain: {
+      type: String,
+      default: 'rgb(36,207,244)'
     },
   },
   data() {
@@ -68,6 +77,14 @@ export default {
         summary[dataItem.name] = dataItem.value.reduce((sum, item) => Number(sum) + (Number(item.value) || 0), 0);
       });
       return summary;
+    },
+    visibleSummary() {
+      if (!this.summaryIndexNames || this.summaryIndexNames.length === 0) return this.dataSummary;
+      const result = {};
+      this.summaryIndexNames.forEach(name => {
+        if (name in this.dataSummary) result[name] = this.dataSummary[name];
+      });
+      return result;
     }
   },
   watch: {
@@ -89,6 +106,14 @@ export default {
       if (this.chart && this.isChartReady) {
         this.renderMap();
       }
+    },
+    summaryIndexNames: {
+      handler() {
+        if (this.chart && this.isChartReady) {
+          this.renderMap();
+        }
+      },
+      deep: true
     }
   },
   mounted() {
@@ -139,6 +164,15 @@ export default {
           console.warn('未知层级:', currentLevel);
           return '';
       }
+    },
+    formateLevelLabel(level) {
+      const labelMap = {
+        'china': '国家级',
+        'province': '省级',
+        'city': '市级',
+        'county': '县级',
+      };
+      return labelMap[level] || level;
     },
     initializeParentInfo() {
       if (this.initName === '中华人民共和国') {
@@ -241,7 +275,7 @@ export default {
 
         content += `<hr style="border:0;border-top:1px solid #666;margin:4px 0"/>`;
 
-        Object.entries(this.dataSummary).forEach(([name, total]) => {
+        Object.entries(this.visibleSummary).forEach(([name, total]) => {
           content += `总${escapeHtml(name)}：${total} <br/>`;
         });
 
@@ -250,7 +284,7 @@ export default {
       };
     },
     generateGraphicElements() {
-      const summaryEntries = Object.entries(this.dataSummary);
+      const summaryEntries = Object.entries(this.visibleSummary);
       if (summaryEntries.length === 0) return [];
 
       const lineHeight = 20;
@@ -268,11 +302,11 @@ export default {
               type: 'rect',
               shape: {width: 200, height: totalHeight, r: 8},
               style: {
-                fill: 'rgba(0,0,0,0.01)',
+                fill: hexToRgba(this.colorMain,0.1),
                 stroke: '#00cfff',
                 lineWidth: 1,
                 shadowBlur: 8,
-                shadowColor: 'rgba(0,0,0,0.25)'
+                shadowColor: hexToRgba(this.colorMain,0.1)
               }
             },
             {
@@ -339,7 +373,7 @@ export default {
           left: 'center',
           top: 10,
           text: this.chartTitle,
-          textStyle: {color: 'rgb(179, 239, 255)', fontSize: 16}
+          textStyle: {color: hexToRgba(this.colorMain,0.2), fontSize: 16}
         }],
         tooltip: {
           trigger: 'item',
@@ -363,15 +397,15 @@ export default {
           },
           itemStyle: {
             normal: {
-              areaColor: '#24CFF4',
-              borderColor: '#53D9FF',
+              areaColor: hexToRgba(this.colorMain,1),
+              borderColor: hexToRgba(this.colorMain,0.9),
               borderWidth: 1.3,
               shadowBlur: 15,
               shadowColor: 'rgb(58,115,192)',
               shadowOffsetX: 0,
               shadowOffsetY: 6
             },
-            emphasis: {areaColor: '#8dd7fc', borderWidth: 1.6, shadowBlur: 25}
+            emphasis: {areaColor: hexToRgba(this.colorMain,0.5), borderWidth: 1.6, shadowBlur: 25}
           }
         },
         ...(barSeriesData.length > 0 ? {
@@ -387,7 +421,7 @@ export default {
           xAxis: {
             type: 'value',
             position: 'top',
-            axisLine: {lineStyle: {color: '#455B77'}},
+            axisLine: {lineStyle: {color: hexToRgba(this.colorMain,1)}},
             axisTick: {show: false},
             axisLabel: {
               interval: 'auto',
@@ -404,7 +438,7 @@ export default {
             type: 'category',
             axisLine: {lineStyle: {color: '#ffffff'}},
             axisTick: {show: false},
-            axisLabel: {textStyle: {color: '#c0e6f9'}},
+            axisLabel: {textStyle: {color: '#ffffff'}},
             data: yCategories,
             inverse: false,
             show: true
@@ -417,7 +451,7 @@ export default {
           bottom: '5%',
           calculable: true,
           seriesIndex: [0],
-          inRange: {color: ['#24CFF4', '#2E98CA', '#1E62AC']},
+          inRange: {color: [hexToRgba(this.colorMain,0.1), hexToRgba(this.colorMain,0.5), hexToRgba(this.colorMain,1)]},
           textStyle: {color: '#24CFF4'},
         },
         series: [
@@ -431,8 +465,8 @@ export default {
             data: mapData,
             itemStyle: {
               normal: {
-                areaColor: '#24CFF4',
-                borderColor: '#53D9FF'
+                areaColor: hexToRgba(this.colorMain,0.9),
+                borderColor: hexToRgba(this.colorMain,0.8)
               }
             }
           },
@@ -467,7 +501,7 @@ export default {
             barWidth: 6,
             itemStyle: {
               normal: {
-                color: '#11AAFE',
+                color: hexToRgba(this.colorMain,0.7),
                 barBorderRadius: [0, 6, 6, 0],
                 opacity: 0.8
               }
@@ -491,6 +525,7 @@ export default {
     },
     async loadMapData() {
       if (this.isComponentDestroyed()) return;
+      if (this.parentInfo.length > this.maxLevel) return;
 
       const currentInfo = this.parentInfo[this.parentInfo.length - 1];
       if (!currentInfo?.level) return;
@@ -557,15 +592,26 @@ export default {
         return;
       }
 
-      if (this.parentInfo.length >= this.maxLevel) {
-        console.warn('已达最大层级，无法继续下钻');
-        return;
-      }
-
       const currentLevelInfo = this.parentInfo[this.parentInfo.length - 1];
       const nextLevel = this.formateLevel(currentLevelInfo.level);
-      if (!nextLevel) {
-        console.warn('已达最低层级，无法下钻');
+      const canDrillDown = !!nextLevel && this.parentInfo.length < this.maxLevel;
+
+      const emitLevel = nextLevel || currentLevelInfo?.level || 'country';
+      this.$emit('clickRegion', {
+        name: data.fullname || data.name,
+        level: emitLevel,
+        levelLabel: this.formateLevelLabel(emitLevel),
+        cityCode: data.cityCode,
+        value: data.value,
+        canDrillDown
+      });
+
+      if (!canDrillDown) {
+        if (!nextLevel) {
+          console.warn('已达最低层级，无法下钻');
+        } else {
+          console.warn('已达最大层级，无法继续下钻');
+        }
         return;
       }
 
@@ -583,10 +629,22 @@ export default {
         return;
       }
 
+      const currentInfo = this.parentInfo[this.parentInfo.length - 1];
+
       this.parentInfo.pop();
       if (this.parentInfo.length === 0) {
         this.initializeParentInfo();
       }
+
+      const newCurrentInfo = this.parentInfo[this.parentInfo.length - 1];
+      const backLevel = newCurrentInfo?.level || 'china';
+      this.$emit('clickRegion', {
+        name: newCurrentInfo?.name || '中华人民共和国',
+        level: backLevel,
+        levelLabel: this.formateLevelLabel(backLevel),
+        cityCode: currentInfo?.cityCode,
+        isBack: true
+      });
 
       this.loadMapData();
       this.showBack = this.parentInfo.length > 1;
