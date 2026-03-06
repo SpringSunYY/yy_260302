@@ -25,23 +25,7 @@
         </div>
         <div class="chart-wrapper">
           <div class="chart-wrapper">
-            <TableRanking
-              :columns="tableColumns"
-              :data="accelerationStatisticsData"
-              @rowClicked="clickTable"
-            >
-              <!-- 封面图片插槽 -->
-              <template slot="coverImage" slot-scope="{ row }">
-                <img
-                  v-if="row.coverImage"
-                  v-lazy
-                  :data-src="row.coverImage"
-                  :alt="row.name || '封面'"
-                  class="cover-image"
-                />
-                <span v-else class="no-image">暂无图片</span>
-              </template>
-            </TableRanking>
+
           </div>
         </div>
       </el-col>
@@ -65,9 +49,9 @@
         <div class="center-chart-wrapper">
           <KeywordGravityCharts
             :font-size-range="[12,36]"
-            :chart-data="brandSalesStatisticsData"
-            :chart-name="brandSalesStatisticsName"
-            @item-click="(item) => handleToQuery(item, 'brandName')"/>
+            :chart-data="skillStatisticsData"
+            :chart-name="skillStatisticsName"
+            @item-click="(item) => handleToQuery(item, 'skill')"/>
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="6">
@@ -90,12 +74,7 @@
             @item-click="(item) => handleToQuery(item, 'experience')"/>
         </div>
         <div class="chart-wrapper">
-          <PieGradientRoseCharts
-            :label-show-value="false"
-            :chart-data="monthSalesStatisticsData"
-            :chart-title="monthSalesStatisticsName"
-            :max-label-length="6"
-          />
+
         </div>
       </el-col>
     </el-row>
@@ -120,7 +99,8 @@ import {
   experienceStatistics,
   mainBusinessStatistics,
   mapStatistics,
-  postTypeStatistics
+  postTypeStatistics,
+  skillStatistics
 } from "@/api/recruit/statistics";
 import PieLayerRateCharts from "@/components/Echarts/PieLayerRateCharts.vue";
 import PieRoseLineCharts from "@/components/Echarts/PieRoseLineCharts.vue";
@@ -160,6 +140,11 @@ const baseQuery = [
     label: '主营业务',
     value: '全部',
     key: 'mainBusiness',
+  },
+  {
+    label: '技能',
+    value: '全部',
+    key: 'skill',
   },
 ]
 
@@ -236,6 +221,10 @@ export default {
       mainBusinessStatisticsData: [],
       mainBusinessStatisticsName: "主营业务分析",
       mainBusinessStatisticsNameOrigin: "主营业务分析",
+      //技能
+      skillStatisticsData: [],
+      skillStatisticsName: "技能分析",
+      skillStatisticsNameOrigin: "技能分析",
     }
   },
   created() {
@@ -272,6 +261,7 @@ export default {
       this.enterpriseSizeStatisticsName = addressName + '-' + this.enterpriseSizeStatisticsNameOrigin
       this.experienceStatisticsName = addressName + '-' + this.experienceStatisticsNameOrigin
       this.mainBusinessStatisticsName = addressName + '-' + this.mainBusinessStatisticsNameOrigin
+      this.skillStatisticsName = addressName + '-' + this.skillStatisticsNameOrigin
       this.getStatisticsData()
     },
     getStatisticsData() {
@@ -282,6 +272,7 @@ export default {
       this.getEnterpriseSizeStatisticsData()
       this.getExperienceStatisticsData()
       this.getMainBusinessStatisticsData()
+      this.getSkillStatisticsData()
     },
     getMapStatisticsData() {
       mapStatistics(this.query).then(res => {
@@ -452,6 +443,27 @@ export default {
             `最高工资：${item.max}<br>` +
             `最低工资：${item.min}`
           this.mainBusinessStatisticsData.push({
+            name: item.name,
+            value: item.value,
+            tooltipText: tooltipText
+          })
+        })
+      })
+    },
+    //技能
+    getSkillStatisticsData() {
+      skillStatistics({
+        ...this.query,
+        skill: null
+      }).then(res => {
+        if (!res.data) return
+        this.skillStatisticsData = []
+        res.data.forEach(item => {
+          const tooltipText =
+            `平均工资：${item.avg}<br>` +
+            `最高工资：${item.max}<br>` +
+            `最低工资：${item.min}`
+          this.skillStatisticsData.push({
             name: item.name,
             value: item.value,
             tooltipText: tooltipText

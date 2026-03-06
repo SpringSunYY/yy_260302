@@ -61,3 +61,12 @@ export function mainBusinessStatistics(query) {
     params: query
   })
 }
+
+//技能
+export function skillStatistics(query) {
+  return request({
+    url: '/recruit/statistics/skill',
+    method: 'get',
+    params: query
+  })
+}

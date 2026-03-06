@@ -28,6 +28,8 @@ class StatisticsMapper:
             stmt = stmt.where(RecruitInfoPo.experience_required == statistics_entity.experience)
         if statistics_entity.main_business is not None:
             stmt = stmt.where(RecruitInfoPo.main_business.like(f"%{statistics_entity.main_business}%"))
+        if statistics_entity.skill is not None:
+            stmt = stmt.where(RecruitInfoPo.skill_required.like(f"%{statistics_entity.skill}%"))
         return stmt
 
     @classmethod
@@ -152,7 +154,7 @@ class StatisticsMapper:
             return []
 
     @classmethod
-    def enterprise_size_statistics(cls, statistics_entity)-> List[StatisticsPo]:
+    def enterprise_size_statistics(cls, statistics_entity) -> List[StatisticsPo]:
         """
         企业规模统计
         select count(*)     as value,
@@ -181,7 +183,7 @@ class StatisticsMapper:
             return []
 
     @classmethod
-    def experience_statistics(cls, statistics_entity)-> List[StatisticsPo]:
+    def experience_statistics(cls, statistics_entity) -> List[StatisticsPo]:
         """
         经验统计
         select count(*)     as value,
@@ -209,7 +211,7 @@ class StatisticsMapper:
             print(f"获取经验统计信息失败: {e}")
 
     @classmethod
-    def main_business_statistics(cls, statistics_entity)-> List[StatisticsPo]:
+    def main_business_statistics(cls, statistics_entity) -> List[StatisticsPo]:
         """
         主营业务统计
         select count(*)     as value,
@@ -235,3 +237,31 @@ class StatisticsMapper:
             return [StatisticsPo(**item) for item in result]
         except Exception as e:
             print(f"获取主营业务统计信息失败: {e}")
+
+    @classmethod
+    def skill_statistics(cls, statistics_entity) -> List[StatisticsPo]:
+        """
+        技能统计
+        select count(*)     as value,
+           avg(salary_month_avg) as avg,
+           min(salary_month_avg) as min,
+           max(salary_month_avg) as max,
+           skill_required as name
+        from tb_recruit_info
+        where full_address is not null
+        group by name
+        """
+        try:
+            stmt = select(func.count("*").label("value"),
+                          func.avg(RecruitInfoPo.salary_month_avg).label("avg"),
+                          func.max(RecruitInfoPo.salary_month_avg).label("max"),
+                          func.min(RecruitInfoPo.salary_month_avg).label("min"),
+                          RecruitInfoPo.skill_required.label("name")
+                          ).select_from(RecruitInfoPo).group_by("name").order_by("value")
+            stmt = cls.build_where(stmt, statistics_entity)
+            result = db.session.execute(stmt).mappings().all()
+            if not result:
+                return []
+            return [StatisticsPo(**item) for item in result]
+        except Exception as e:
+            print(f"获取技能统计信息失败: {e}")

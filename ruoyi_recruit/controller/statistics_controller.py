@@ -118,3 +118,19 @@ def main_business_statistics(request: StatisticsRequest):
     if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.main_business_statistics(statistics_entity))
+
+
+#技能
+@gen.route('/skill', methods=["GET"])
+@QueryValidator(is_page=True)
+@PreAuthorize(HasPerm('recruit:recruitInfo:statistics'))
+@JsonSerializer()
+def skill_statistics(request: StatisticsRequest):
+    statistics_entity = StatisticsRequest()
+    # 转换dto到Entity对象
+    for attr in request.model_fields.keys():
+        if hasattr(statistics_entity, attr):
+            setattr(statistics_entity, attr, getattr(request, attr))
+    if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
+        statistics_entity.address = None
+    return AjaxResponse.from_success(data=service.skill_statistics(statistics_entity))

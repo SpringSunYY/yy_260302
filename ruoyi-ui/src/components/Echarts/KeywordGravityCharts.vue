@@ -75,8 +75,10 @@ export default {
   },
 
   mounted() {
-    this.initChart();
-    window.addEventListener('resize', this.handleResize);
+    this.$nextTick(() => {
+      this.initChart();
+      window.addEventListener('resize', this.handleResize);
+    });
   },
 
   beforeDestroy() {
@@ -90,7 +92,7 @@ export default {
   watch: {
     chartData: {
       handler() {
-        // 数据变化时更新，但不销毁
+        // 数据变化时更新，重新初始化图表
         this.initChart();
       },
       deep: true
@@ -135,7 +137,19 @@ export default {
       if (!this.chart) {
         this.chart = echarts.init(this.$refs.chartRef);
       }
-
+      this.isFirstRender = false;
+      // 事件绑定
+      this.chart.off('click');
+      this.chart.on('click', (params) => {
+        if (params.dataType === 'node') {
+          this.$emit('item-click', params.data);
+        }
+      });
+      this.setOption();
+    },
+    setOption() {
+      const data = this.chartData;
+      if (!data || data.length === 0) return;
       const {min: minChartValue, max: maxChartValue} = this.getMinMaxValue(data);
       const total = this.calculateTotal(data);
       const avg = data.length > 0 ? (total / data.length).toFixed(2) : 0;
@@ -158,7 +172,8 @@ export default {
             color: generateRandomColor(this.defaultColor),
             fontSize: calculatedFontSize
           },
-          itemStyle: { color: 'rgba(0,0,0,0)', borderWidth: 0 },
+          tooltipText: item.tooltipText,
+          itemStyle: {color: 'rgba(0,0,0,0)', borderWidth: 0},
           symbolSize: calculatedFontSize * 1.4, // 球体大小
         };
       });
@@ -167,7 +182,7 @@ export default {
         title: {
           show: true,
           text: this.chartName,
-          textStyle: { fontSize: 16, color: '#ffffff' },
+          textStyle: {fontSize: 16, color: '#ffffff'},
           top: '5%', left: '5%',
         },
         tooltip: {
@@ -180,10 +195,15 @@ export default {
               res += `<br/><hr style="margin: 5px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.2)"/>`;
               res += `Total: ${total}<br/>Avg: ${avg}`;
             }
+            if (params.data.tooltipText) {
+              res += `<br/><div style="margin-top:8px; padding:8px; background:rgba(91, 143, 249, 0.2); border-left: 3px solid #5B8FF9; font-size:12px; line-height:1.5;">
+                        ${params.data.tooltipText.replace(/\n/g, '<br/>')}
+                      </div>`;
+            }
             return res;
           },
           backgroundColor: 'rgba(0,0,0,0.7)',
-          textStyle: { color: '#fff' }
+          textStyle: {color: '#fff'}
         },
         series: [{
           // 添加缩放控制配置
@@ -192,7 +212,7 @@ export default {
             max: 2     // 最大缩放比例
           },
           // 控制缩放灵敏度
-          zoomSensitivity:2,  // 默认为1，降低值可减缓缩放速度
+          zoomSensitivity: 2,  // 默认为1，降低值可减缓缩放速度
           type: 'graph',
           layout: 'force',
           roam: 'scale',
@@ -212,16 +232,6 @@ export default {
 
       // 核心：设置 notMerge 为 false，不强制刷新整个图表
       this.chart.setOption(option);
-
-      this.isFirstRender = false;
-
-      // 事件绑定
-      this.chart.off('click');
-      this.chart.on('click', (params) => {
-        if (params.dataType === 'node') {
-          this.$emit('item-click', params.data);
-        }
-      });
     },
 
     handleResize() {

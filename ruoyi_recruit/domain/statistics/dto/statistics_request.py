@@ -57,3 +57,10 @@ class StatisticsRequest(BaseEntity):
         VoField(query=True),
         ExcelField(name="主营业务")
     ]
+    # 技能
+    skill: Annotated[
+        Optional[str],
+        Field(default=None, description="技能"),
+        VoField(query=True),
+        ExcelField(name="技能")
+    ]
