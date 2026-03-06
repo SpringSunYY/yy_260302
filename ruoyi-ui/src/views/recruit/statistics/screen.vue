@@ -122,6 +122,34 @@ import {
 import PieLayerRateCharts from "@/components/Echarts/PieLayerRateCharts.vue";
 import PieRoseLineCharts from "@/components/Echarts/PieRoseLineCharts.vue";
 
+const baseQuery = [
+  {
+    label: '地区',
+    value: '全国',
+    key: 'address',
+  },
+  {
+    label: '城市等级',
+    value: '全部',
+    key: 'cityLevel',
+  },
+  {
+    label: '岗位',
+    value: '全部',
+    key: 'postType',
+  },
+  {
+    label: '学历',
+    value: '全部',
+    key: 'education',
+  },
+  {
+    label: '企业规模',
+    value: '全部',
+    key: 'enterpriseSize',
+  },
+]
+
 export default {
   name: "SalesStatisticsScreen",
   components: {
@@ -162,33 +190,7 @@ export default {
   data() {
     return {
       query: {},
-      tableQueryList: [
-        {
-          label: '地区',
-          value: '全国',
-          key: 'address',
-        },
-        {
-          label: '城市等级',
-          value: '全部',
-          key: 'cityLevel',
-        },
-        {
-          label: '岗位',
-          value: '全部',
-          key: 'postType',
-        },
-        {
-          label: '学历',
-          value: '全部',
-          key: 'education',
-        },
-        {
-          label: '企业规模',
-          value: '全部',
-          key: 'enterpriseSize',
-        },
-      ],
+      tableQueryList: baseQuery,
       tableColumns: [
         {label: '封面', prop: 'coverImage', show: false},
         {label: '系列', prop: 'name'},
@@ -344,7 +346,8 @@ export default {
     //城市等级
     getCityLevelStatisticsData() {
       cityLevelStatistics({
-        address: this.query.address
+        ...this.query,
+        cityLevel: null
       }).then(res => {
         if (!res.data) return
         this.cityLevelStatisticsData = []
@@ -364,7 +367,8 @@ export default {
     //岗位
     getPostTypeStatisticsData() {
       postTypeStatistics({
-        address: this.query.address
+        ...this.query,
+        postType: null
       }).then(res => {
         if (!res.data) return
         this.postTypeStatisticsData = []
@@ -384,7 +388,8 @@ export default {
     //学历
     getEducationStatisticsData() {
       educationStatistics({
-        address: this.query.address
+        ...this.query,
+        education: null
       }).then(res => {
         if (!res.data) return
         this.educationStatisticsData = []
@@ -404,7 +409,8 @@ export default {
     //企业规模
     getEnterpriseSizeStatisticsData() {
       enterpriseSizeStatistics({
-        address: this.query.address
+        ...this.query,
+        enterpriseSize: null
       }).then(res => {
         if (!res.data) return
         this.enterpriseSizeStatisticsData = []
@@ -422,7 +428,7 @@ export default {
       })
     },
     getDataByStatisticsClick() {
-      this.getMapStatisticsData()
+      this.getStatisticsData()
       this.$modal.msgSuccess("查询中，请稍候。。。")
     },
     handleToQuery(item, type) {
@@ -543,43 +549,7 @@ export default {
           break;
         }
       }
-      this.tableQueryList = [
-        {
-          label: '品牌',
-          value: '全部',
-          key: 'brandName',
-        },
-        {
-          label: '价格',
-          value: '全部',
-          key: 'price',
-        },
-        {
-          label: '车型',
-          value: '全部',
-          key: 'modelType',
-        },
-        {
-          label: '能源',
-          value: '全部',
-          key: 'energyType',
-        },
-        {
-          label: '国家',
-          value: '全部',
-          key: 'country',
-        },
-        {
-          label: '车系',
-          value: '全部',
-          key: 'seriesName',
-        },
-        {
-          label: '地区',
-          value: addressName,
-          key: 'address',
-        },
-      ]
+      this.tableQueryList = baseQuery
       this.getDataByStatisticsClick();
       this.getMapData({
         name: addressName
