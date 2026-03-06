@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
 // 地图统计
-export function mapStatistics(query){
+export function mapStatistics(query) {
   return request({
     url: '/recruit/statistics/map',
     method: 'get',
@@ -10,9 +10,18 @@ export function mapStatistics(query){
 }
 
 //城市等级统计
-export function cityLevelStatistics(query){
+export function cityLevelStatistics(query) {
   return request({
     url: '/recruit/statistics/cityLevel',
+    method: 'get',
+    params: query
+  })
+}
+
+//岗位
+export function postTypeStatistics(query) {
+  return request({
+    url: '/recruit/statistics/postType',
     method: 'get',
     params: query
   })

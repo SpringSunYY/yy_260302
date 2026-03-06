@@ -11,11 +11,10 @@
           />
         </div>
         <div class="chart-wrapper">
-          <ScatterRandomTooltipCharts
-            :chart-data="modelTypeSalesStatisticsData"
-            :chart-title="modelTypeSalesStatisticsName"
-            :symbol-size="600"
-            @item-click="(item) => handleToQuery(item, 'modelType')"/>
+          <PieLayerRateCharts
+            :chart-data="postTypeStatisticsData"
+            :chart-title="postTypeStatisticsName"
+            @item-click="(item) => handleToQuery(item, 'postType')"/>
         </div>
         <div class="chart-wrapper">
           <PiePetalTransparentPoseCharts
@@ -115,11 +114,13 @@ import BarRankingZoomCharts from "@/components/Echarts/BarRankingZoomCharts.vue"
 import BarLineZoomCharts from "@/components/Echarts/BarLineZoomCharts.vue";
 import TableRanking from "@/components/Echarts/TableRanking.vue";
 import LabelValueGrid from "@/components/Echarts/LabelValueList.vue";
-import {cityLevelStatistics, mapStatistics} from "@/api/recruit/statistics";
+import {cityLevelStatistics, mapStatistics, postTypeStatistics} from "@/api/recruit/statistics";
+import PieLayerRateCharts from "@/components/Echarts/PieLayerRateCharts.vue";
 
 export default {
   name: "SalesStatisticsScreen",
   components: {
+    PieLayerRateCharts,
     LabelValueGrid,
     TableRanking,
     BarLineZoomCharts,
@@ -166,6 +167,11 @@ export default {
           value: '全部',
           key: 'cityLevel',
         },
+        {
+          label: '岗位',
+          value: '全部',
+          key: 'postType',
+        },
       ],
       tableColumns: [
         {label: '封面', prop: 'coverImage', show: false},
@@ -177,8 +183,12 @@ export default {
       mapStatisticsName: "工资地图",
       //城市等级
       cityLevelStatisticsData: [],
-      cityLevelStatisticsName: "城市等级",
-      cityLevelStatisticsNameOrigin: "城市等级",
+      cityLevelStatisticsName: "城市等级分析",
+      cityLevelStatisticsNameOrigin: "城市等级分析",
+      //岗位
+      postTypeStatisticsData: [],
+      postTypeStatisticsName: "岗位分析",
+      postTypeStatisticsNameOrigin: "岗位分析",
       //价格销量
       priceSalesStatisticsData: [],
       priceSalesStatisticsName: "价格销量分析",
@@ -245,11 +255,13 @@ export default {
       }
       this.resetLabelQuery('address', addressName)
       this.cityLevelStatisticsName = addressName + '-' + this.cityLevelStatisticsNameOrigin
+      this.postTypeStatisticsName = addressName + '-' + this.postTypeStatisticsNameOrigin
       this.getStatisticsData()
     },
     getStatisticsData() {
       this.getMapStatisticsData()
       this.getCityLevelStatisticsData()
+      this.getPostTypeStatisticsData()
     },
     getMapStatisticsData() {
       mapStatistics(this.query).then(res => {
@@ -321,6 +333,26 @@ export default {
         })
       })
     },
+    //岗位
+    getPostTypeStatisticsData() {
+      postTypeStatistics({
+        address: this.query.address
+      }).then(res => {
+        if (!res.data) return
+        this.postTypeStatisticsData = []
+        res.data.forEach(item => {
+          const tooltipText =
+            `平均工资：${item.avg}<br>` +
+            `最高工资：${item.max}<br>` +
+            `最低工资：${item.min}`
+          this.postTypeStatisticsData.push({
+            name: item.name,
+            value: item.value,
+            tooltipText: tooltipText
+          })
+        })
+      })
+    },
     getDataByStatisticsClick() {
       this.getMapStatisticsData()
       this.$modal.msgSuccess("查询中，请稍候。。。")
@@ -330,6 +362,9 @@ export default {
       if (type === 'cityLevel') {
         this.processCityLevelQuery(item, type)
       }
+      if (type === 'postType') {
+        this.processPostTypeQuery(item, type)
+      }
       if (type === 'price') {
         this.processPriceQuery(item, type)
       }
@@ -337,6 +372,10 @@ export default {
     },
     processCityLevelQuery(item, type) {
       this.query.cityLevel = item.name;
+      this.resetLabelQuery(type, item.name)
+    },
+    processPostTypeQuery(item, type) {
+      this.query.postType = item.name;
       this.resetLabelQuery(type, item.name)
     },
     processPriceQuery(item, type) {

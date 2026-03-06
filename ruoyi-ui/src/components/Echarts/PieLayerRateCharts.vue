@@ -229,8 +229,8 @@ export default {
               res += `总计：${totalValue}<br/>平均：${avgValue}`;
             }
             if (params.data && params.data.tooltipText) {
-              res += `<div style="border-top:1px solid rgba(255,255,255,0.2);margin:4px 0;"></div>`;
-              res += `<span style="color:#bbb;font-size:12px;">${params.data.tooltipText.replace(/\n/g, '<br/>')}</span>`;
+              res += `<div style="border-top:1px solid rgba(255,254,254,0.2);margin:4px 0;"></div>`;
+              res += `<span style="color:#ffffff;font-size:12px;">${params.data.tooltipText.replace(/\n/g, '<br/>')}</span>`;
             }
             return res;
           }
