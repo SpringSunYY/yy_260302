@@ -108,3 +108,10 @@ class StatisticsService:
                 max=round(float(po.max), 2) if po.max is not None else None
             ))
         return result
+    @classmethod
+    def enterprise_size_statistics(cls, statistics_entity)-> List[StatisticsVo]:
+        """
+        企业规模统计
+        """
+        pos = StatisticsMapper.enterprise_size_statistics(statistics_entity)
+        return cls.build_result(pos)

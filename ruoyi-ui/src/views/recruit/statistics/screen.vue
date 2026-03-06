@@ -17,11 +17,10 @@
             @item-click="(item) => handleToQuery(item, 'postType')"/>
         </div>
         <div class="chart-wrapper">
-          <PiePetalTransparentPoseCharts
-            :chart-data="countrySalesStatisticsData"
-            :chart-title="countrySalesStatisticsName"
-            @item-click="(item) => handleToQuery(item, 'country')"
-            :label-show-value="false"
+          <PieRoseLineCharts
+            :chart-data="enterpriseSizeStatisticsData"
+            :chart-title="enterpriseSizeStatisticsName"
+            @item-click="(item) => handleToQuery(item, 'enterpriseSize')"
           />
         </div>
         <div class="chart-wrapper">
@@ -113,12 +112,20 @@ import BarRankingZoomCharts from "@/components/Echarts/BarRankingZoomCharts.vue"
 import BarLineZoomCharts from "@/components/Echarts/BarLineZoomCharts.vue";
 import TableRanking from "@/components/Echarts/TableRanking.vue";
 import LabelValueGrid from "@/components/Echarts/LabelValueList.vue";
-import {cityLevelStatistics, educationStatistics, mapStatistics, postTypeStatistics} from "@/api/recruit/statistics";
+import {
+  cityLevelStatistics,
+  educationStatistics,
+  enterpriseSizeStatistics,
+  mapStatistics,
+  postTypeStatistics
+} from "@/api/recruit/statistics";
 import PieLayerRateCharts from "@/components/Echarts/PieLayerRateCharts.vue";
+import PieRoseLineCharts from "@/components/Echarts/PieRoseLineCharts.vue";
 
 export default {
   name: "SalesStatisticsScreen",
   components: {
+    PieRoseLineCharts,
     PieLayerRateCharts,
     LabelValueGrid,
     TableRanking,
@@ -176,6 +183,11 @@ export default {
           value: '全部',
           key: 'education',
         },
+        {
+          label: '企业规模',
+          value: '全部',
+          key: 'enterpriseSize',
+        },
       ],
       tableColumns: [
         {label: '封面', prop: 'coverImage', show: false},
@@ -197,6 +209,10 @@ export default {
       educationStatisticsData: [],
       educationStatisticsName: "学历分析",
       educationStatisticsNameOrigin: "学历分析",
+      //企业规模
+      enterpriseSizeStatisticsData: [],
+      enterpriseSizeStatisticsName: "企业规模分析",
+      enterpriseSizeStatisticsNameOrigin: "企业规模分析",
       //价格销量
       priceSalesStatisticsData: [],
       priceSalesStatisticsName: "价格销量分析",
@@ -265,6 +281,7 @@ export default {
       this.cityLevelStatisticsName = addressName + '-' + this.cityLevelStatisticsNameOrigin
       this.postTypeStatisticsName = addressName + '-' + this.postTypeStatisticsNameOrigin
       this.educationStatisticsName = addressName + '-' + this.educationStatisticsNameOrigin
+      this.enterpriseSizeStatisticsName = addressName + '-' + this.enterpriseSizeStatisticsNameOrigin
       this.getStatisticsData()
     },
     getStatisticsData() {
@@ -272,6 +289,7 @@ export default {
       this.getCityLevelStatisticsData()
       this.getPostTypeStatisticsData()
       this.getEducationStatisticsData()
+      this.getEnterpriseSizeStatisticsData()
     },
     getMapStatisticsData() {
       mapStatistics(this.query).then(res => {
@@ -383,6 +401,26 @@ export default {
         })
       })
     },
+    //企业规模
+    getEnterpriseSizeStatisticsData() {
+      enterpriseSizeStatistics({
+        address: this.query.address
+      }).then(res => {
+        if (!res.data) return
+        this.enterpriseSizeStatisticsData = []
+        res.data.forEach(item => {
+          const tooltipText =
+            `平均工资：${item.avg}<br>` +
+            `最高工资：${item.max}<br>` +
+            `最低工资：${item.min}`
+          this.enterpriseSizeStatisticsData.push({
+            name: item.name,
+            value: item.value,
+            tooltipText: tooltipText
+          })
+        })
+      })
+    },
     getDataByStatisticsClick() {
       this.getMapStatisticsData()
       this.$modal.msgSuccess("查询中，请稍候。。。")
@@ -398,10 +436,17 @@ export default {
       if (type === 'education') {
         this.processEducationQuery(item, type)
       }
+      if (type === 'enterpriseSize') {
+        this.processEnterpriseSizeQuery(item, type)
+      }
       if (type === 'price') {
         this.processPriceQuery(item, type)
       }
       this.getDataByStatisticsClick();
+    },
+    processEnterpriseSizeQuery(item, type) {
+      this.query.enterpriseSize = item.name;
+      this.resetLabelQuery(type, item.name)
     },
     processEducationQuery(item, type) {
       this.query.education = item.name;

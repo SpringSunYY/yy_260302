@@ -172,7 +172,7 @@ export default {
             }
             res += `<b>${params.name}</b> : ${params.value.toFixed(2)} (${params.percent}%)<br/>`;
             if (params.data.tooltipText) {
-              res += `<span style="color:#3bd2fe; font-size:12px;">说明：${params.data.tooltipText.replace(/\n/g, '<br/>')}</span><br/>`;
+              res += `<span style="color:#3bd2fe; font-size:12px;">${params.data.tooltipText.replace(/\n/g, '<br/>')}</span><br/>`;
             }
             if (params.data.max !== undefined) res += `<b>最大:</b> ${params.data.max}<br/>`;
             if (params.data.min !== undefined) res += `<b>最小:</b> ${params.data.min}<br/>`;

@@ -35,3 +35,12 @@ export function educationStatistics(query) {
     params: query
   })
 }
+
+//企业规模
+export function enterpriseSizeStatistics(query) {
+  return request({
+    url: '/recruit/statistics/enterpriseSize',
+    method: 'get',
+    params: query
+  })
+}
