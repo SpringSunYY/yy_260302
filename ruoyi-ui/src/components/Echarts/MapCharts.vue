@@ -33,6 +33,10 @@ export default {
       type: Array,
       default: () => ['province', 'china']
     },
+    maxLevel: {
+      type: Number,
+      default: 3
+    },
   },
   data() {
     return {
@@ -44,6 +48,7 @@ export default {
       isChartReady: false,
       resizeTimer: null,
       isRendering: false,
+      _isDestroyed: false,
     };
   },
   computed: {
@@ -52,12 +57,14 @@ export default {
       return index >= 0 ? index : 0;
     },
     defaultDataItem() {
+      if (!this.chartData || !Array.isArray(this.chartData)) return {name: '', value: []};
       return this.chartData[this.defaultDataIndex] || this.chartData[0] || {name: '', value: []};
     },
     dataSummary() {
       const summary = {};
-      if (!this.chartData) return summary;
+      if (!this.chartData || !Array.isArray(this.chartData)) return summary;
       this.chartData.forEach(dataItem => {
+        if (!dataItem || !Array.isArray(dataItem.value)) return;
         summary[dataItem.name] = dataItem.value.reduce((sum, item) => Number(sum) + (Number(item.value) || 0), 0);
       });
       return summary;
@@ -87,12 +94,12 @@ export default {
   mounted() {
     this.$nextTick(async () => {
       await this.initChart();
-      setTimeout(() => {
-        this.bindResizeEvent();
-      }, 1000);
+      this.bindResizeEvent();
     });
   },
   beforeDestroy() {
+    this._isDestroyed = true;
+
     if (this.resizeTimer) {
       clearTimeout(this.resizeTimer);
       this.resizeTimer = null;
@@ -142,12 +149,16 @@ export default {
     },
     getDataValuesByLocation(locationName) {
       const result = {};
+      if (!this.chartData || !Array.isArray(this.chartData)) return result;
 
       this.chartData.forEach(dataItem => {
+        if (!dataItem || !Array.isArray(dataItem.value)) {
+          result[dataItem?.name || ''] = 0;
+          return;
+        }
         const locationData = dataItem.value.find(item =>
           item.location === locationName ||
-          item.location.includes(locationName) ||
-          locationName.includes(item.location)
+          (item.location && locationName && (item.location.includes(locationName) || locationName.includes(item.location)))
         );
         result[dataItem.name] = locationData ? locationData.value : 0;
       });
@@ -209,18 +220,29 @@ export default {
         if (!params?.data) return '';
         const d = params.data;
 
+        const escapeHtml = (str) => {
+          if (!str) return '';
+          return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+        };
+
+        const locationName = escapeHtml(d.fullname || d.name);
         let content = `<div style="text-align:left">
-          ${d.fullname || d.name}<br/>`;
+          ${locationName}<br/>`;
 
         this.chartData.forEach(dataItem => {
           const value = d[dataItem.name] || 0;
-          content += `${dataItem.name}：${value} <br/>`;
+          content += `${escapeHtml(dataItem.name)}：${value} <br/>`;
         });
 
         content += `<hr style="border:0;border-top:1px solid #666;margin:4px 0"/>`;
 
         Object.entries(this.dataSummary).forEach(([name, total]) => {
-          content += `总${name}：${total} <br/>`;
+          content += `总${escapeHtml(name)}：${total} <br/>`;
         });
 
         content += `</div>`;
@@ -269,7 +291,7 @@ export default {
       ];
     },
     renderMap() {
-      if (!this.chart || this.isRendering) return;
+      if (!this.chart || this.isRendering || this.isComponentDestroyed()) return;
 
       this.isRendering = true;
       const mapName = 'map';
@@ -289,6 +311,8 @@ export default {
         visualMapMin = max === 0 ? 0 : max * 0.8;
         visualMapMax = max === 0 ? 1000 : max;
       }
+
+      const isAllZero = visualMapMin === 0 && visualMapMax === 0;
 
       const yCategories = mapData.map(d => d.name);
       const barSeriesData = mapData.map(d => ({
@@ -427,8 +451,9 @@ export default {
             symbolSize: (val) => {
               const v = val?.[2] || 0;
               const minSize = 3, maxSize = 10;
-              if (visualMapMax === visualMapMin) return (minSize + maxSize) / 2;
-              return minSize + (v - visualMapMin) / (visualMapMax - visualMapMin) * (maxSize - minSize);
+              if (visualMapMax === visualMapMin || isAllZero) return (minSize + maxSize) / 2;
+              const ratio = (v - visualMapMin) / (visualMapMax - visualMapMin);
+              return minSize + Math.max(0, Math.min(1, ratio)) * (maxSize - minSize);
             },
             showEffectOn: 'render',
             data: pointData
@@ -465,6 +490,8 @@ export default {
       }
     },
     async loadMapData() {
+      if (this.isComponentDestroyed()) return;
+
       const currentInfo = this.parentInfo[this.parentInfo.length - 1];
       if (!currentInfo?.level) return;
 
@@ -478,17 +505,32 @@ export default {
         }
 
         const res = await getGeoJson(requestLevel, currentInfo.name);
+
+        if (this.isComponentDestroyed()) return;
+
         if (!res?.geoJson) {
           console.warn('无地图数据，回退上一级');
           this.parentInfo.pop();
           return;
         }
 
-        const data = JSON.parse(res.geoJson);
+        let data;
+        try {
+          data = JSON.parse(res.geoJson);
+        } catch (parseError) {
+          console.error('地图数据 JSON 解析失败:', parseError);
+          this.geoJsonFeatures = [];
+          this.renderMap();
+          return;
+        }
+
         this.geoJsonFeatures = data.features || [];
         this.chartTitle = `${currentInfo.fullname || currentInfo.name}${this.chartName}`;
 
         await this.$nextTick();
+
+        if (this.isComponentDestroyed()) return;
+
         this.renderMap();
 
         if (this.geoJsonFeatures.length === 0 && this.parentInfo.length > 1) {
@@ -502,7 +544,9 @@ export default {
       } catch (err) {
         console.error('地图数据加载失败:', err);
         this.geoJsonFeatures = [];
-        this.renderMap();
+        if (!this.isComponentDestroyed()) {
+          this.renderMap();
+        }
       } finally {
         this.chart?.hideLoading();
       }
@@ -510,6 +554,11 @@ export default {
     handleDrillDown(data) {
       if (!data?.name) {
         console.warn('无效数据，无法下钻');
+        return;
+      }
+
+      if (this.parentInfo.length >= this.maxLevel) {
+        console.warn('已达最大层级，无法继续下钻');
         return;
       }
 
@@ -543,6 +592,8 @@ export default {
       this.showBack = this.parentInfo.length > 1;
     },
     handleResize() {
+      if (this.isComponentDestroyed()) return;
+
       if (this.resizeTimer) {
         clearTimeout(this.resizeTimer);
       }
@@ -569,7 +620,7 @@ export default {
         } catch (error) {
           this.isChartReady = false;
           setTimeout(() => {
-            if (this.chart && !this.chart.isDisposed()) {
+            if (this.chart && !this.chart.isDisposed() && !this.isComponentDestroyed()) {
               this.renderMap();
             }
           }, 300);
@@ -577,17 +628,21 @@ export default {
       }, 300);
     },
     async initChart() {
-      if (!this.$refs.chartRef) return;
+      if (!this.$refs.chartRef || this.isComponentDestroyed()) return;
 
       try {
         if (this.chart) {
           this.chart.dispose();
+          this.chart = null;
         }
 
         this.chart = echarts.init(this.$refs.chartRef);
 
+        this.chartTitle = this.chartName;
         this.initializeParentInfo();
         await this.loadMapData();
+
+        if (this.isComponentDestroyed()) return;
 
         this.chart.off('click');
         this.chart.on('click', (params) => {
@@ -602,6 +657,9 @@ export default {
     bindResizeEvent() {
       window.removeEventListener('resize', this.handleResize);
       window.addEventListener('resize', this.handleResize, {passive: true});
+    },
+    isComponentDestroyed() {
+      return this._isDestroyed || !this.$refs.chartRef;
     }
   }
 };
