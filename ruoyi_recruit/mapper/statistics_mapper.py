@@ -16,16 +16,18 @@ class StatisticsMapper:
     def build_where(cls, stmt, statistics_entity: StatisticsRequest):
         if statistics_entity.address is not None:
             stmt = stmt.where(RecruitInfoPo.full_address.like(f"%{statistics_entity.address}%"))
-        if statistics_entity.cityLevel is not None:
-            stmt = stmt.where(RecruitInfoPo.city_level == statistics_entity.cityLevel)
+        if statistics_entity.city_level is not None:
+            stmt = stmt.where(RecruitInfoPo.city_level == statistics_entity.city_level)
         if statistics_entity.postType is not None:
             stmt = stmt.where(RecruitInfoPo.post_type == statistics_entity.postType)
         if statistics_entity.education is not None:
             stmt = stmt.where(RecruitInfoPo.education_required == statistics_entity.education)
-        if statistics_entity.enterpriseSize is not None:
-            stmt = stmt.where(RecruitInfoPo.enterprise_size == statistics_entity.enterpriseSize)
+        if statistics_entity.enterprise_size is not None:
+            stmt = stmt.where(RecruitInfoPo.enterprise_size == statistics_entity.enterprise_size)
         if statistics_entity.experience is not None:
             stmt = stmt.where(RecruitInfoPo.experience_required == statistics_entity.experience)
+        if statistics_entity.main_business is not None:
+            stmt = stmt.where(RecruitInfoPo.main_business.like(f"%{statistics_entity.main_business}%"))
         return stmt
 
     @classmethod
@@ -205,3 +207,31 @@ class StatisticsMapper:
             return [StatisticsPo(**item) for item in result]
         except Exception as e:
             print(f"获取经验统计信息失败: {e}")
+
+    @classmethod
+    def main_business_statistics(cls, statistics_entity)-> List[StatisticsPo]:
+        """
+        主营业务统计
+        select count(*)     as value,
+           avg(salary_month_avg) as avg,
+           min(salary_month_avg) as min,
+           max(salary_month_avg) as max,
+           main_business as name
+        from tb_recruit_info
+        where full_address is not null
+        group by name
+        """
+        try:
+            stmt = select(func.count("*").label("value"),
+                          func.avg(RecruitInfoPo.salary_month_avg).label("avg"),
+                          func.max(RecruitInfoPo.salary_month_avg).label("max"),
+                          func.min(RecruitInfoPo.salary_month_avg).label("min"),
+                          RecruitInfoPo.main_business.label("name")
+                          ).select_from(RecruitInfoPo).group_by("name").order_by("value")
+            stmt = cls.build_where(stmt, statistics_entity)
+            result = db.session.execute(stmt).mappings().all()
+            if not result:
+                return []
+            return [StatisticsPo(**item) for item in result]
+        except Exception as e:
+            print(f"获取主营业务统计信息失败: {e}")

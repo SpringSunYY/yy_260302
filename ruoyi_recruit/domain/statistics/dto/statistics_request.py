@@ -16,7 +16,7 @@ class StatisticsRequest(BaseEntity):
         ExcelField(name="地区")
     ]
     # 城市等级
-    cityLevel: Annotated[
+    city_level: Annotated[
         Optional[str],
         Field(default=None, description="城市等级"),
         VoField(query=True),
@@ -37,7 +37,7 @@ class StatisticsRequest(BaseEntity):
         ExcelField(name="学历")
     ]
     # 企业规模
-    enterpriseSize: Annotated[
+    enterprise_size: Annotated[
         Optional[str],
         Field(default=None, description="企业规模"),
         VoField(query=True),
@@ -49,4 +49,11 @@ class StatisticsRequest(BaseEntity):
         Field(default=None, description="经验"),
         VoField(query=True),
         ExcelField(name="经验")
+    ]
+    # 主营业务
+    main_business: Annotated[
+        Optional[str],
+        Field(default=None, description="主营业务"),
+        VoField(query=True),
+        ExcelField(name="主营业务")
     ]

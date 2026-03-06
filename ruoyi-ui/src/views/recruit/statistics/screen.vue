@@ -57,6 +57,10 @@
         </div>
         <div class="expert-chart-wrapper">
           <ScatterRandomTooltipCharts
+            :chart-title="mainBusinessStatisticsName"
+            :chart-data="mainBusinessStatisticsData"
+            :symbol-size="10"
+            @item-click="(item) => handleToQuery(item, 'mainBusiness')"
           />
         </div>
         <div class="center-chart-wrapper">
@@ -115,6 +119,7 @@ import {
   educationStatistics,
   enterpriseSizeStatistics,
   experienceStatistics,
+  mainBusinessStatistics,
   mapStatistics,
   postTypeStatistics
 } from "@/api/recruit/statistics";
@@ -151,6 +156,11 @@ const baseQuery = [
     label: '经验',
     value: '全部',
     key: 'experience',
+  },
+  {
+    label: '主营业务',
+    value: '全部',
+    key: 'mainBusiness',
   },
 ]
 
@@ -223,6 +233,10 @@ export default {
       experienceStatisticsData: [],
       experienceStatisticsName: "经验分析",
       experienceStatisticsNameOrigin: "经验分析",
+      //主营业务
+      mainBusinessStatisticsData: [],
+      mainBusinessStatisticsName: "主营业务分析",
+      mainBusinessStatisticsNameOrigin: "主营业务分析",
     }
   },
   created() {
@@ -258,6 +272,7 @@ export default {
       this.educationStatisticsName = addressName + '-' + this.educationStatisticsNameOrigin
       this.enterpriseSizeStatisticsName = addressName + '-' + this.enterpriseSizeStatisticsNameOrigin
       this.experienceStatisticsName = addressName + '-' + this.experienceStatisticsNameOrigin
+      this.mainBusinessStatisticsName = addressName + '-' + this.mainBusinessStatisticsNameOrigin
       this.getStatisticsData()
     },
     getStatisticsData() {
@@ -267,6 +282,7 @@ export default {
       this.getEducationStatisticsData()
       this.getEnterpriseSizeStatisticsData()
       this.getExperienceStatisticsData()
+      this.getMainBusinessStatisticsData()
     },
     getMapStatisticsData() {
       mapStatistics(this.query).then(res => {
@@ -416,6 +432,27 @@ export default {
             `最高工资：${item.max}<br>` +
             `最低工资：${item.min}`
           this.experienceStatisticsData.push({
+            name: item.name,
+            value: item.value,
+            tooltipText: tooltipText
+          })
+        })
+      })
+    },
+    //主营业务
+    getMainBusinessStatisticsData() {
+      mainBusinessStatistics({
+        ...this.query,
+        mainBusiness: null
+      }).then(res => {
+        if (!res.data) return
+        this.mainBusinessStatisticsData = []
+        res.data.forEach(item => {
+          const tooltipText =
+            `平均工资：${item.avg}<br>` +
+            `最高工资：${item.max}<br>` +
+            `最低工资：${item.min}`
+          this.mainBusinessStatisticsData.push({
             name: item.name,
             value: item.value,
             tooltipText: tooltipText

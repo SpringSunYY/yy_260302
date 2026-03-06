@@ -203,7 +203,7 @@ export default {
             formatter: "{b}",
             color: "#fff",
             fontWeight: "bold",
-            fontSize: 14
+            fontSize: 10
           },
           // 优化缩放体验，减小更新延迟
           animationDurationUpdate: 400

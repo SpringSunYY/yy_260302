@@ -53,3 +53,11 @@ export function experienceStatistics(query) {
     params: query
   })
 }
+//主营业务
+export function mainBusinessStatistics(query) {
+  return request({
+    url: '/recruit/statistics/mainBusiness',
+    method: 'get',
+    params: query
+  })
+}

@@ -108,8 +108,9 @@ class StatisticsService:
                 max=round(float(po.max), 2) if po.max is not None else None
             ))
         return result
+
     @classmethod
-    def enterprise_size_statistics(cls, statistics_entity)-> List[StatisticsVo]:
+    def enterprise_size_statistics(cls, statistics_entity) -> List[StatisticsVo]:
         """
         企业规模统计
         """
@@ -117,9 +118,67 @@ class StatisticsService:
         return cls.build_result(pos)
 
     @classmethod
-    def experience_statistics(cls, statistics_entity)-> List[StatisticsVo]:
+    def experience_statistics(cls, statistics_entity) -> List[StatisticsVo]:
         """
         经验统计
         """
         pos = StatisticsMapper.experience_statistics(statistics_entity)
         return cls.build_result(pos)
+
+    @classmethod
+    def main_business_statistics(cls, statistics_entity) -> List[StatisticsVo]:
+        """
+        主营业务统计
+        """
+        pos = StatisticsMapper.main_business_statistics(statistics_entity)
+        if not pos:
+            return []
+
+        business_map = {}
+        for po in pos:
+            if not po.name:
+                continue
+
+            businesses = str(po.name).replace("/", ",").split(",")
+            value = int(po.value) if po.value else 0
+            avg = float(po.avg) if po.avg is not None else 0.0
+            cur_min = float(po.min) if po.min is not None else None
+            cur_max = float(po.max) if po.max is not None else None
+
+            for business in businesses:
+                business = business.strip()
+                if not business:
+                    continue
+                if business not in business_map:
+                    business_map[business] = {
+                        "value": 0,
+                        "weighted_avg_sum": 0.0,
+                        "min": None,
+                        "max": None
+                    }
+
+                business_map[business]["value"] += value
+                business_map[business]["weighted_avg_sum"] += avg * value
+
+                if cur_min is not None:
+                    if business_map[business]["min"] is None or cur_min < business_map[business]["min"]:
+                        business_map[business]["min"] = cur_min
+                if cur_max is not None:
+                    if business_map[business]["max"] is None or cur_max > business_map[business]["max"]:
+                        business_map[business]["max"] = cur_max
+
+        result = []
+        for business, data in business_map.items():
+            avg = data["weighted_avg_sum"] / data["value"] if data["value"] > 0 else 0.0
+            result.append(StatisticsVo(
+                name=business,
+                value=data["value"],
+                avg=round(avg, 2),
+                min=round(data["min"], 2) if data["min"] is not None else None,
+                max=round(data["max"], 2) if data["max"] is not None else None
+            ))
+
+        result.sort(key=lambda x: x.value if x.value else 0, reverse=True)
+        # 返回前100
+        result = result[:100]
+        return result
