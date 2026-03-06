@@ -83,7 +83,6 @@
               :chart-data="cityLevelModelData"
               :chart-title="cityLevelModelName"
               @item-click="(item) => handleToQuery(item, 'cityLevel')"/>
-            />
           </div>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="10">
@@ -100,7 +99,6 @@
               :chart-data="cityModelData"
               :chart-title="cityModelName"
               @item-click="(item) => handleToQuery(item, 'city')"/>
-            />
           </div>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="14">
@@ -118,7 +116,6 @@
               :chart-data="educationModelData"
               :chart-title="educationModelName"
               @item-click="(item) => handleToQuery(item, 'educationRequired')"/>
-            />
           </div>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="14">
@@ -127,7 +124,6 @@
               :chart-data="mainBusinessModelData"
               :chart-title="mainBusinessModelName"
               @item-click="(item) => handleToQuery(item, 'mainBusiness')"/>
-            />
           </div>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="10">
@@ -136,7 +132,6 @@
               :chart-data="enterpriseSizeModelData"
               :chart-title="enterpriseSizeModelName"
               @item-click="(item) => handleToQuery(item, 'enterpriseSize')"/>
-            />
           </div>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="10">
@@ -152,7 +147,6 @@
             <PieGhostingCharts
               :chart-data="salaryModelData"
               :chart-title="salaryModelName"
-            />
             />
           </div>
         </el-col>
