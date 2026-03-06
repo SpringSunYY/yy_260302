@@ -200,7 +200,7 @@ export default {
   data() {
     return {
       query: {},
-      tableQueryList: baseQuery,
+      tableQueryList: JSON.parse(JSON.stringify(baseQuery)),
       tableColumns: [
         {label: '封面', prop: 'coverImage', show: false},
         {label: '系列', prop: 'name'},
@@ -594,17 +594,19 @@ export default {
     //重置查询
     reset() {
       this.query = {}
-      let addressName = '全国'; // 默认值
+      let addressName = '全国';
       for (const item of this.tableQueryList) {
         if (item.key === 'address') {
           addressName = item.value;
           break;
         }
       }
-      this.tableQueryList = baseQuery
-      this.getDataByStatisticsClick();
+      // 使用深拷贝确保响应式
+      this.tableQueryList = JSON.parse(JSON.stringify(baseQuery))
+      this.resetLabelQuery('address', addressName)
       this.getMapData({
-        name: addressName
+        name: addressName,
+        canDrillDown: true
       })
     }
   }
