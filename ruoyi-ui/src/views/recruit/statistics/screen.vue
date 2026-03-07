@@ -57,6 +57,13 @@
             :chart-name="skillStatisticsName"
             @item-click="(item) => handleToQuery(item, 'skill')"/>
         </div>
+        <div class="center-chart-wrapper">
+          <ScatterAvgCharts
+            :chart-data="skillSalaryStatisticsData"
+            :chart-name="skillSalaryStatisticsName"
+            @item-click="(item) => handleToQuery(item, 'skill')"
+          />
+        </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="6">
         <div class="query-chart-wrapper">
@@ -78,7 +85,11 @@
             @item-click="(item) => handleToQuery(item, 'experience')"/>
         </div>
         <div class="chart-wrapper">
-
+          <ScatterAvgCharts
+            :chart-data="skillSalaryStatisticsData"
+            :chart-name="skillSalaryStatisticsName"
+            @item-click="(item) => handleToQuery(item, 'skill')"
+          />
         </div>
       </el-col>
     </el-row>
@@ -110,6 +121,7 @@ import {
 import PieLayerRateCharts from "@/components/Echarts/PieLayerRateCharts.vue";
 import PieRoseLineCharts from "@/components/Echarts/PieRoseLineCharts.vue";
 import PieGhostingCharts from "@/components/Echarts/PieGhostingCharts.vue";
+import ScatterAvgCharts from "@/components/Echarts/ScatterAvgCharts.vue";
 
 const baseQuery = [
   {
@@ -162,6 +174,7 @@ const baseQuery = [
 export default {
   name: "SalesStatisticsScreen",
   components: {
+    ScatterAvgCharts,
     PieGhostingCharts,
     PieRoseLineCharts,
     PieLayerRateCharts,
@@ -237,6 +250,10 @@ export default {
       skillStatisticsData: [],
       skillStatisticsName: "技能分析",
       skillStatisticsNameOrigin: "技能分析",
+      //技能工资
+      skillSalaryStatisticsData: [],
+      skillSalaryStatisticsName: "技能工资分析",
+      skillSalaryStatisticsNameOrigin: "技能工资分析",
       //工资
       salaryStatisticsData: [],
       salaryStatisticsName: "工资分析",
@@ -279,6 +296,7 @@ export default {
       this.mainBusinessStatisticsName = addressName + '-' + this.mainBusinessStatisticsNameOrigin
       this.skillStatisticsName = addressName + '-' + this.skillStatisticsNameOrigin
       this.salaryStatisticsName = addressName + '-' + this.salaryStatisticsNameOrigin
+      this.skillSalaryStatisticsName = addressName + '-' + this.skillSalaryStatisticsNameOrigin
       this.getStatisticsData()
     },
     getStatisticsData() {
@@ -476,6 +494,7 @@ export default {
       }).then(res => {
         if (!res.data) return
         this.skillStatisticsData = []
+        this.skillSalaryStatisticsData = []
         res.data.forEach(item => {
           const tooltipText =
             `平均工资：${item.avg}<br>` +
@@ -484,6 +503,12 @@ export default {
           this.skillStatisticsData.push({
             name: item.name,
             value: item.value,
+            tooltipText: tooltipText
+          })
+          this.skillSalaryStatisticsData.push({
+            name: item.name,
+            xAxis: item.value,
+            yAxis: item.avg,
             tooltipText: tooltipText
           })
         })

@@ -23,7 +23,10 @@ def map_statistics(request: StatisticsRequest):
     for attr in request.model_fields.keys():
         if hasattr(statistics_entity, attr):
             setattr(statistics_entity, attr, getattr(request, attr))
-    if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
+    if (statistics_entity.address is None
+            or statistics_entity.address == "中华人民共和国"
+            or statistics_entity.address == ""
+            or statistics_entity.address == "全国"):
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.map_statistics(statistics_entity))
 
@@ -39,9 +42,13 @@ def city_level_statistics(request: StatisticsRequest):
     for attr in request.model_fields.keys():
         if hasattr(statistics_entity, attr):
             setattr(statistics_entity, attr, getattr(request, attr))
-    if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
+    if (statistics_entity.address is None
+            or statistics_entity.address == "中华人民共和国"
+            or statistics_entity.address == ""
+            or statistics_entity.address == "全国"):
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.city_level_statistics(statistics_entity))
+
 
 # 岗位
 @gen.route('/postType', methods=["GET"])
@@ -54,12 +61,15 @@ def post_type_statistics(request: StatisticsRequest):
     for attr in request.model_fields.keys():
         if hasattr(statistics_entity, attr):
             setattr(statistics_entity, attr, getattr(request, attr))
-    if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
+    if (statistics_entity.address is None
+            or statistics_entity.address == "中华人民共和国"
+            or statistics_entity.address == ""
+            or statistics_entity.address == "全国"):
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.post_type_statistics(statistics_entity))
 
 
-#学历
+# 学历
 @gen.route('/education', methods=["GET"])
 @QueryValidator(is_page=True)
 @PreAuthorize(HasPerm('recruit:recruitInfo:statistics'))
@@ -70,11 +80,15 @@ def education_statistics(request: StatisticsRequest):
     for attr in request.model_fields.keys():
         if hasattr(statistics_entity, attr):
             setattr(statistics_entity, attr, getattr(request, attr))
-    if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
+    if (statistics_entity.address is None
+            or statistics_entity.address == "中华人民共和国"
+            or statistics_entity.address == ""
+            or statistics_entity.address == "全国"):
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.education_statistics(statistics_entity))
 
-#企业规模
+
+# 企业规模
 @gen.route('/enterpriseSize', methods=["GET"])
 @QueryValidator(is_page=True)
 @PreAuthorize(HasPerm('recruit:recruitInfo:statistics'))
@@ -85,11 +99,15 @@ def enterprise_size_statistics(request: StatisticsRequest):
     for attr in request.model_fields.keys():
         if hasattr(statistics_entity, attr):
             setattr(statistics_entity, attr, getattr(request, attr))
-    if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
+    if (statistics_entity.address is None
+            or statistics_entity.address == "中华人民共和国"
+            or statistics_entity.address == ""
+            or statistics_entity.address == "全国"):
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.enterprise_size_statistics(statistics_entity))
 
-#经验
+
+# 经验
 @gen.route('/experience', methods=["GET"])
 @QueryValidator(is_page=True)
 @PreAuthorize(HasPerm('recruit:recruitInfo:statistics'))
@@ -100,11 +118,15 @@ def experience_statistics(request: StatisticsRequest):
     for attr in request.model_fields.keys():
         if hasattr(statistics_entity, attr):
             setattr(statistics_entity, attr, getattr(request, attr))
-    if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
+    if (statistics_entity.address is None
+            or statistics_entity.address == "中华人民共和国"
+            or statistics_entity.address == ""
+            or statistics_entity.address == "全国"):
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.experience_statistics(statistics_entity))
 
-#主营业务
+
+# 主营业务
 @gen.route('/mainBusiness', methods=["GET"])
 @QueryValidator(is_page=True)
 @PreAuthorize(HasPerm('recruit:recruitInfo:statistics'))
@@ -115,12 +137,15 @@ def main_business_statistics(request: StatisticsRequest):
     for attr in request.model_fields.keys():
         if hasattr(statistics_entity, attr):
             setattr(statistics_entity, attr, getattr(request, attr))
-    if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
+    if (statistics_entity.address is None
+            or statistics_entity.address == "中华人民共和国"
+            or statistics_entity.address == ""
+            or statistics_entity.address == "全国"):
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.main_business_statistics(statistics_entity))
 
 
-#技能
+# 技能
 @gen.route('/skill', methods=["GET"])
 @QueryValidator(is_page=True)
 @PreAuthorize(HasPerm('recruit:recruitInfo:statistics'))
@@ -131,11 +156,15 @@ def skill_statistics(request: StatisticsRequest):
     for attr in request.model_fields.keys():
         if hasattr(statistics_entity, attr):
             setattr(statistics_entity, attr, getattr(request, attr))
-    if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
+    if (statistics_entity.address is None
+            or statistics_entity.address == "中华人民共和国"
+            or statistics_entity.address == ""
+            or statistics_entity.address == "全国"):
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.skill_statistics(statistics_entity))
 
-#工资
+
+# 工资
 @gen.route('/salary', methods=["GET"])
 @QueryValidator(is_page=True)
 @PreAuthorize(HasPerm('recruit:recruitInfo:statistics'))
@@ -146,6 +175,9 @@ def salary_statistics(request: StatisticsRequest):
     for attr in request.model_fields.keys():
         if hasattr(statistics_entity, attr):
             setattr(statistics_entity, attr, getattr(request, attr))
-    if statistics_entity.address is None or statistics_entity.address == "中华人民共和国":
+    if (statistics_entity.address is None
+            or statistics_entity.address == "中华人民共和国"
+            or statistics_entity.address == ""
+            or statistics_entity.address == "全国"):
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.salary_statistics(statistics_entity))
