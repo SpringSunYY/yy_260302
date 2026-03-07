@@ -59,10 +59,14 @@ export default {
         '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
       ]
     },
-    //大小盘
+    // 是否显示总数和平均值
+    showExtraInfo: {
+      type: Boolean,
+      default: true
+    },
     symbolSize: {
       type: Number,
-      default: 700
+      default: 100
     }
   },
   data() {
@@ -103,17 +107,18 @@ export default {
         this.chart.dispose();
       }
       this.chart = echarts.init(this.$refs.chartRef);
+      this.setOptions();
       // 点击事件监听
       this.chart.on('click', (params) => {
         if (params.name && params.data) {
           this.$emit('item-click', params.data);
         }
       });
-      this.setOptions();
     },
     setOptions() {
+
       // 1. 计算总计
-      this.totalSum = this.chartData.reduce((sum, item) => sum + (item.value || 0), 0).toFixed(2);
+      this.totalSum = this.chartData.reduce((sum, item) => sum + (item.value || 0), 0);
       // 2. 处理数据映射
       const processedData = this.chartData.map((item, index) => {
         const percentage = ((item.value / this.totalSum) * 100).toFixed(2);
@@ -160,11 +165,17 @@ export default {
           textStyle: {color: '#fff'},
           formatter: (params) => {
             const d = params.data;
-            let res = `<div style="line-height:22px;">
-                        <b style="color:#FFD700">总计: ${this.totalSum}</b><br/>
-                        ${d.name}: ${d.realValue} (${d.percentage}%)`;
+            const avg = (this.totalSum / this.chartData.length).toFixed(2);
+            let res = `<div style="line-height:22px;">`;
+            if (this.showExtraInfo) {
+              res += `<b style="color:#FFD700">总计: ${this.totalSum}</b><br/> `;
+              res += `<b style="color:#00FFFF">平均: ${avg}</b><br/>`;
+              res += `<hr style="border:0.3px solid #555;margin:5px 0;"/>`;
+            }
+            res += `${d.name}: ${d.realValue} (${d.percentage}%)`;
             if (d.tooltipText) {
-              res += `<br/><span style="color:#00FFFF">${d.tooltipText}</span>`;
+              res += `<hr style="border:0.3px solid #555;margin:5px 0;"/>`;
+              res += `<span style="color:#00FFFF">${d.tooltipText}</span>`;
             }
             res += `</div>`;
             return res;
@@ -202,7 +213,7 @@ export default {
             formatter: "{b}",
             color: "#fff",
             fontWeight: "bold",
-            fontSize: 12
+            fontSize: 14
           },
           // 优化缩放体验，减小更新延迟
           animationDurationUpdate: 400
@@ -223,6 +234,6 @@ export default {
 <style scoped>
 /* 确保容器有高度 */
 .chart {
-  height: 100%;
+  min-height: 400px;
 }
 </style>

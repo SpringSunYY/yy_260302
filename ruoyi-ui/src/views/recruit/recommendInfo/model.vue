@@ -162,7 +162,6 @@ import PiePetalTransparentPoseCharts from "@/components/Echarts/PiePetalTranspar
 import PieGradientCharts from "@/components/Echarts/PieGradientCharts.vue";
 import PiePetalPoseCharts from "@/components/Echarts/PiePetalPoseCharts.vue";
 import PieGradientRoseCharts from "@/components/Echarts/PieGradientRoseCharts.vue";
-import ScatterRandomTooltipCharts from "@/components/Echarts/ScatterRandomCharts.vue";
 import KeywordGravityCharts from "@/components/Echarts/KeywordGravityCharts.vue";
 import StarsBorderBg from "@/components/BorderBg/StarsBorderBg.vue";
 import PieLayerRateCharts from "@/components/Echarts/PieLayerRateCharts.vue";
@@ -170,11 +169,13 @@ import PieRoseHollowCharts from "@/components/Echarts/PieRoseHollowCharts.vue";
 import PieRoseLineCharts from "@/components/Echarts/PieRoseLineCharts.vue";
 import PieRoundCharts from "@/components/Echarts/PieRoundCharts.vue";
 import PieGhostingCharts from "@/components/Echarts/PieGhostingCharts.vue";
+import ScatterRandomTooltipCharts from "@/components/Echarts/ScatterRandomTooltipCharts.vue";
 
 
 export default {
   name: "RecommendModel",
   components: {
+    ScatterRandomTooltipCharts,
     PieGhostingCharts,
     PieRoundCharts,
     PieRoseLineCharts,
@@ -182,7 +183,6 @@ export default {
     PieLayerRateCharts,
     StarsBorderBg,
     KeywordGravityCharts,
-    ScatterRandomTooltipCharts,
     PieGradientRoseCharts,
     PiePetalPoseCharts,
     PieGradientCharts,

@@ -85,10 +85,13 @@
             @item-click="(item) => handleToQuery(item, 'experience')"/>
         </div>
         <div class="chart-wrapper">
-          <PieRoundCharts
+          <ScatterRandomTooltipCharts
             :chart-data="financingSituationStatisticsData"
             :chart-title="financingSituationStatisticsName"
             @item-click="(item) => handleToQuery(item, 'financingSituation')"/>
+        </div>
+        <div class="chart-wrapper">
+          <ScatterRandomTooltipCharts/>
         </div>
       </el-col>
     </el-row>
@@ -98,7 +101,7 @@
 import KeywordGravityCharts from "@/components/Echarts/KeywordGravityCharts.vue";
 import MapCharts from "@/components/Echarts/MapCharts.vue";
 import PieGradientCharts from "@/components/Echarts/PieGradientCharts.vue";
-import ScatterRandomTooltipCharts from "@/components/Echarts/ScatterRandomCharts.vue";
+import ScatterRandomTooltipCharts from "@/components/Echarts/ScatterRandomTooltipCharts.vue";
 import PiePetalPoseCharts from "@/components/Echarts/PiePetalPoseCharts.vue";
 import PiePetalTransparentPoseCharts from "@/components/Echarts/PiePetalTransparentPoseCharts.vue";
 import PieGradientRoseCharts from "@/components/Echarts/PieGradientRoseCharts.vue";
@@ -191,7 +194,11 @@ export default {
     BarRankingZoomCharts,
     PieGradientRoseCharts,
     PiePetalTransparentPoseCharts,
-    PiePetalPoseCharts, ScatterRandomTooltipCharts, PieGradientCharts, MapCharts, KeywordGravityCharts
+    PiePetalPoseCharts,
+    ScatterRandomTooltipCharts,
+    PieGradientCharts,
+    MapCharts,
+    KeywordGravityCharts
   },
   directives: {
     lazy: {
