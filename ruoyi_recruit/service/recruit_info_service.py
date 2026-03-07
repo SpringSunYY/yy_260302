@@ -313,7 +313,7 @@ class RecruitInfoService:
         """
         skills = []
         for skill in [skill1, skill2, skill3, skill4]:
-            if skill and str(skill).strip():
+            if skill and str(skill).strip() and len(skill) > 0 and skill != "无" and skill != "无要求" and skill != "":
                 skills.append(str(skill).strip())
 
         return " / ".join(skills)
