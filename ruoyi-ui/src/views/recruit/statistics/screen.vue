@@ -23,12 +23,12 @@
             @item-click="(item) => handleToQuery(item, 'enterpriseSize')"
           />
         </div>
-          <div class="chart-wrapper">
-            <PieGhostingCharts
-              :chart-data="salaryStatisticsData"
-              :chart-title="salaryStatisticsName"
-              @item-click="(item) => handleToQuery(item, 'salary')"
-            />
+        <div class="chart-wrapper">
+          <PieGhostingCharts
+            :chart-data="salaryStatisticsData"
+            :chart-title="salaryStatisticsName"
+            @item-click="(item) => handleToQuery(item, 'salary')"
+          />
         </div>
         <div class="center-chart-wrapper">
           <BarRankingZoomCharts
@@ -95,8 +95,12 @@
             :chart-title="financingSituationStatisticsName"
             @item-click="(item) => handleToQuery(item, 'financingSituation')"/>
         </div>
-        <div class="chart-wrapper">
-          <ScatterRandomTooltipCharts/>
+        <div class="center-chart-wrapper">
+          <BarRankingZoomCharts
+            :chart-data="skillRankingStatisticsData"
+            :chart-title="skillRankingStatisticsName"
+            direction="left"
+          />
         </div>
       </el-col>
     </el-row>
@@ -121,7 +125,8 @@ import {
   experienceStatistics,
   financingSituationStatistics,
   mainBusinessStatistics,
-  mapStatistics, postRankingStatistics,
+  mapStatistics,
+  postRankingStatistics,
   postTypeStatistics,
   salaryStatistics,
   skillStatistics
@@ -273,6 +278,10 @@ export default {
       skillSalaryStatisticsData: [],
       skillSalaryStatisticsName: "技能工资分析",
       skillSalaryStatisticsNameOrigin: "技能工资分析",
+      //技能排行
+      skillRankingStatisticsData: [],
+      skillRankingStatisticsName: "技能排行",
+      skillRankingStatisticsNameOrigin: "技能排行",
       //工资
       salaryStatisticsData: [],
       salaryStatisticsName: "工资分析",
@@ -326,6 +335,7 @@ export default {
       this.skillSalaryStatisticsName = addressName + '-' + this.skillSalaryStatisticsNameOrigin
       this.financingSituationStatisticsName = addressName + '-' + this.financingSituationStatisticsNameOrigin
       this.postRankingStatisticsName = addressName + '-' + this.postRankingStatisticsNameOrigin
+      this.skillRankingStatisticsName = addressName + '-' + this.skillRankingStatisticsNameOrigin
       this.getStatisticsData()
     },
     getStatisticsData() {
@@ -540,6 +550,11 @@ export default {
             name: item.name,
             xAxis: item.value,
             yAxis: item.avg,
+            tooltipText: tooltipText
+          })
+          this.skillRankingStatisticsData.push({
+            name: item.name,
+            value: item.value,
             tooltipText: tooltipText
           })
         })
