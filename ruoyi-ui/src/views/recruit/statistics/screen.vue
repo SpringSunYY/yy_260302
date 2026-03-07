@@ -85,11 +85,10 @@
             @item-click="(item) => handleToQuery(item, 'experience')"/>
         </div>
         <div class="chart-wrapper">
-          <ScatterAvgCharts
-            :chart-data="skillSalaryStatisticsData"
-            :chart-name="skillSalaryStatisticsName"
-            @item-click="(item) => handleToQuery(item, 'skill')"
-          />
+          <PieRoundCharts
+            :chart-data="financingSituationStatisticsData"
+            :chart-title="financingSituationStatisticsName"
+            @item-click="(item) => handleToQuery(item, 'financingSituation')"/>
         </div>
       </el-col>
     </el-row>
@@ -112,6 +111,7 @@ import {
   educationStatistics,
   enterpriseSizeStatistics,
   experienceStatistics,
+  financingSituationStatistics,
   mainBusinessStatistics,
   mapStatistics,
   postTypeStatistics,
@@ -122,6 +122,7 @@ import PieLayerRateCharts from "@/components/Echarts/PieLayerRateCharts.vue";
 import PieRoseLineCharts from "@/components/Echarts/PieRoseLineCharts.vue";
 import PieGhostingCharts from "@/components/Echarts/PieGhostingCharts.vue";
 import ScatterAvgCharts from "@/components/Echarts/ScatterAvgCharts.vue";
+import PieRoundCharts from "@/components/Echarts/PieRoundCharts.vue";
 
 const baseQuery = [
   {
@@ -168,12 +169,18 @@ const baseQuery = [
     label: '工资',
     value: '全部',
     key: 'salary',
-  }
+  },
+  {
+    label: '融资情况',
+    value: '全部',
+    key: 'financingSituation',
+  },
 ]
 
 export default {
   name: "SalesStatisticsScreen",
   components: {
+    PieRoundCharts,
     ScatterAvgCharts,
     PieGhostingCharts,
     PieRoseLineCharts,
@@ -258,6 +265,10 @@ export default {
       salaryStatisticsData: [],
       salaryStatisticsName: "工资分析",
       salaryStatisticsNameOrigin: "工资分析",
+      //融资情况
+      financingSituationStatisticsData: [],
+      financingSituationStatisticsName: "融资情况分析",
+      financingSituationStatisticsNameOrigin: "融资情况分析",
     }
   },
   created() {
@@ -297,6 +308,7 @@ export default {
       this.skillStatisticsName = addressName + '-' + this.skillStatisticsNameOrigin
       this.salaryStatisticsName = addressName + '-' + this.salaryStatisticsNameOrigin
       this.skillSalaryStatisticsName = addressName + '-' + this.skillSalaryStatisticsNameOrigin
+      this.financingSituationStatisticsName = addressName + '-' + this.financingSituationStatisticsNameOrigin
       this.getStatisticsData()
     },
     getStatisticsData() {
@@ -309,6 +321,7 @@ export default {
       this.getMainBusinessStatisticsData()
       this.getSkillStatisticsData()
       this.getSalaryStatisticsData()
+      this.getFinancingSituationStatisticsData()
     },
     getMapStatisticsData() {
       mapStatistics(this.query).then(res => {
@@ -529,6 +542,27 @@ export default {
             `最高工资：${item.max}<br>` +
             `最低工资：${item.min}`
           this.salaryStatisticsData.push({
+            name: item.name,
+            value: item.value,
+            tooltipText: tooltipText
+          })
+        })
+      })
+    },
+    //融资情况
+    getFinancingSituationStatisticsData() {
+      financingSituationStatistics({
+        ...this.query,
+        financingSituation: null
+      }).then(res => {
+        if (!res.data) return
+        this.financingSituationStatisticsData = []
+        res.data.forEach(item => {
+          const tooltipText =
+            `平均工资：${item.avg}<br>` +
+            `最高工资：${item.max}<br>` +
+            `最低工资：${item.min}`
+          this.financingSituationStatisticsData.push({
             name: item.name,
             value: item.value,
             tooltipText: tooltipText

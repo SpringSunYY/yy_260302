@@ -79,3 +79,12 @@ export function salaryStatistics(query) {
     params: query
   })
 }
+
+//融资情况
+export function financingSituationStatistics(query) {
+  return request({
+    url: '/recruit/statistics/financingSituation',
+    method: 'get',
+    params: query
+  })
+}

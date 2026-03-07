@@ -125,6 +125,23 @@ def experience_statistics(request: StatisticsRequest):
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.experience_statistics(statistics_entity))
 
+#融资情况
+@gen.route('/financingSituation', methods=["GET"])
+@QueryValidator(is_page=True)
+@PreAuthorize(HasPerm('recruit:recruitInfo:statistics'))
+@JsonSerializer()
+def financing_situation_statistics(request: StatisticsRequest):
+    statistics_entity = StatisticsRequest()
+    # 转换dto到Entity对象
+    for attr in request.model_fields.keys():
+        if hasattr(statistics_entity, attr):
+            setattr(statistics_entity, attr, getattr(request, attr))
+    if (statistics_entity.address is None
+            or statistics_entity.address == "中华人民共和国"
+            or statistics_entity.address == ""
+            or statistics_entity.address == "全国"):
+        statistics_entity.address = None
+    return AjaxResponse.from_success(data=service.financing_situation_statistics(statistics_entity))
 
 # 主营业务
 @gen.route('/mainBusiness', methods=["GET"])

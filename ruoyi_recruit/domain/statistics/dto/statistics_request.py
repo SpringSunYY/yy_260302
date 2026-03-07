@@ -78,3 +78,10 @@ class StatisticsRequest(BaseEntity):
         VoField(query=True),
         ExcelField(name="最小工资")
     ]
+    # 融资
+    financingSituation: Annotated[
+        Optional[str],
+        Field(default=None, description="融资"),
+        VoField(query=True),
+        ExcelField(name="融资")
+    ]

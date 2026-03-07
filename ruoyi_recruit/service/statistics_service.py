@@ -127,6 +127,14 @@ class StatisticsService:
         return cls.build_result(pos)
 
     @classmethod
+    def financing_situation_statistics(cls, statistics_entity)-> List[StatisticsVo]:
+        """
+        融资统计
+        """
+        pos = StatisticsMapper.financing_situation_statistics(statistics_entity)
+        return cls.build_result(pos)
+
+    @classmethod
     def build_strip_result(cls, pos: List[StatisticsPo], size: 50) -> List[StatisticsVo]:
         """
         构建特殊结果
