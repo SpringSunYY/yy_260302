@@ -4,7 +4,7 @@ from ruoyi_admin.ext import db
 from ruoyi_recruit.domain.po import RecruitInfoPo
 from ruoyi_recruit.domain.statistics.dto import StatisticsRequest
 from ruoyi_recruit.domain.statistics.po import StatisticsPo
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 
 
 class StatisticsMapper:
@@ -36,6 +36,8 @@ class StatisticsMapper:
             stmt = stmt.where(RecruitInfoPo.salary_month_avg >= statistics_entity.min_salary)
         if statistics_entity.financingSituation is not None:
             stmt = stmt.where(RecruitInfoPo.financing_situation == statistics_entity.financingSituation)
+        if statistics_entity.limit is not None:
+            stmt = stmt.limit(statistics_entity.limit)
         return stmt
 
     @classmethod
@@ -73,7 +75,7 @@ class StatisticsMapper:
             return []
 
     @classmethod
-    def city_level_statistics(cls, statistics_entity) -> List[StatisticsPo]:
+    def city_level_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsPo]:
         """
         城市等级统计
         select count(*)     as value,
@@ -102,7 +104,7 @@ class StatisticsMapper:
             return []
 
     @classmethod
-    def post_type_statistics(cls, statistics_entity) -> List[StatisticsPo]:
+    def post_type_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsPo]:
         """
         岗位统计
         select count(*)     as value,
@@ -131,7 +133,7 @@ class StatisticsMapper:
             return []
 
     @classmethod
-    def education_statistics(cls, statistics_entity) -> List[StatisticsPo]:
+    def education_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsPo]:
         """
         学历统计
         select count(*)     as value,
@@ -160,7 +162,7 @@ class StatisticsMapper:
             return []
 
     @classmethod
-    def enterprise_size_statistics(cls, statistics_entity) -> List[StatisticsPo]:
+    def enterprise_size_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsPo]:
         """
         企业规模统计
         select count(*)     as value,
@@ -189,7 +191,7 @@ class StatisticsMapper:
             return []
 
     @classmethod
-    def experience_statistics(cls, statistics_entity) -> List[StatisticsPo]:
+    def experience_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsPo]:
         """
         经验统计
         select count(*)     as value,
@@ -217,7 +219,7 @@ class StatisticsMapper:
             print(f"获取经验统计信息失败: {e}")
 
     @classmethod
-    def main_business_statistics(cls, statistics_entity) -> List[StatisticsPo]:
+    def main_business_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsPo]:
         """
         主营业务统计
         select count(*)     as value,
@@ -245,7 +247,7 @@ class StatisticsMapper:
             print(f"获取主营业务统计信息失败: {e}")
 
     @classmethod
-    def skill_statistics(cls, statistics_entity) -> List[StatisticsPo]:
+    def skill_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsPo]:
         """
         技能统计
         select count(*)     as value,
@@ -273,7 +275,7 @@ class StatisticsMapper:
             print(f"获取技能统计信息失败: {e}")
 
     @classmethod
-    def salary_statistics(cls, statistics_entity) -> List[StatisticsPo]:
+    def salary_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsPo]:
         """
         薪资统计
         select count(*)     as value,
@@ -301,7 +303,7 @@ class StatisticsMapper:
             print(f"获取薪资统计信息失败: {e}")
 
     @classmethod
-    def financing_situation_statistics(cls, statistics_entity)-> List[StatisticsPo]:
+    def financing_situation_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsPo]:
         """
         融资统计
         select count(*)     as value,
@@ -314,7 +316,7 @@ class StatisticsMapper:
         group by name
         """
         try:
-            stmt=select(func.count("*").label("value"),
+            stmt = select(func.count("*").label("value"),
                           func.avg(RecruitInfoPo.salary_month_avg).label("avg"),
                           func.max(RecruitInfoPo.salary_month_avg).label("max"),
                           func.min(RecruitInfoPo.salary_month_avg).label("min"),
@@ -327,3 +329,26 @@ class StatisticsMapper:
             return [StatisticsPo(**item) for item in result]
         except Exception as e:
             print(f"获取融资统计信息失败: {e}")
+
+    @classmethod
+    def post_rank_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsPo]:
+        """
+        岗位排行
+        select max(salary_month_avg)     as value,
+            post as name
+        from tb_recruit_info
+        where full_address is not null
+        group by name
+        order by value desc
+        """
+        try:
+            stmt = select(func.max(RecruitInfoPo.salary_month_avg).label("value"),
+                          RecruitInfoPo.post.label("name")
+                          ).select_from(RecruitInfoPo).group_by("name").order_by(text("value desc"))
+            stmt = cls.build_where(stmt, statistics_entity)
+            result = db.session.execute(stmt).mappings().all()
+            if not result:
+                return []
+            return [StatisticsPo(**item) for item in result]
+        except Exception as e:
+            print(f"获取岗位排行统计信息失败: {e}")

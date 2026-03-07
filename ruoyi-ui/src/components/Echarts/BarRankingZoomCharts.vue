@@ -57,7 +57,7 @@ export default {
     // 显示的数据条数
     displayCount: {
       type: Number,
-      default: 6
+      default: 12
     },
     // 轮播间隔（毫秒）
     playInterval: {

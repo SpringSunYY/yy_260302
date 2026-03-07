@@ -23,14 +23,19 @@
             @item-click="(item) => handleToQuery(item, 'enterpriseSize')"
           />
         </div>
-        <div class="chart-wrapper">
           <div class="chart-wrapper">
             <PieGhostingCharts
               :chart-data="salaryStatisticsData"
               :chart-title="salaryStatisticsName"
               @item-click="(item) => handleToQuery(item, 'salary')"
             />
-          </div>
+        </div>
+        <div class="center-chart-wrapper">
+          <BarRankingZoomCharts
+            :chart-data="postRankingStatisticsData"
+            :chart-title="postRankingStatisticsName"
+            direction="right"
+          />
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="12">
@@ -116,7 +121,7 @@ import {
   experienceStatistics,
   financingSituationStatistics,
   mainBusinessStatistics,
-  mapStatistics,
+  mapStatistics, postRankingStatistics,
   postTypeStatistics,
   salaryStatistics,
   skillStatistics
@@ -276,6 +281,10 @@ export default {
       financingSituationStatisticsData: [],
       financingSituationStatisticsName: "融资情况分析",
       financingSituationStatisticsNameOrigin: "融资情况分析",
+      //岗位排行
+      postRankingStatisticsData: [],
+      postRankingStatisticsName: "岗位排行",
+      postRankingStatisticsNameOrigin: "岗位排行",
     }
   },
   created() {
@@ -316,6 +325,7 @@ export default {
       this.salaryStatisticsName = addressName + '-' + this.salaryStatisticsNameOrigin
       this.skillSalaryStatisticsName = addressName + '-' + this.skillSalaryStatisticsNameOrigin
       this.financingSituationStatisticsName = addressName + '-' + this.financingSituationStatisticsNameOrigin
+      this.postRankingStatisticsName = addressName + '-' + this.postRankingStatisticsNameOrigin
       this.getStatisticsData()
     },
     getStatisticsData() {
@@ -329,6 +339,7 @@ export default {
       this.getSkillStatisticsData()
       this.getSalaryStatisticsData()
       this.getFinancingSituationStatisticsData()
+      this.getPostRankingStatisticsData()
     },
     getMapStatisticsData() {
       mapStatistics(this.query).then(res => {
@@ -573,6 +584,21 @@ export default {
             name: item.name,
             value: item.value,
             tooltipText: tooltipText
+          })
+        })
+      })
+    },
+    //岗位排行
+    getPostRankingStatisticsData() {
+      postRankingStatistics({
+        ...this.query,
+      }).then(res => {
+        if (!res.data) return
+        this.postRankingStatisticsData = []
+        res.data.forEach(item => {
+          this.postRankingStatisticsData.push({
+            name: item.name,
+            value: item.value,
           })
         })
       })

@@ -198,3 +198,22 @@ def salary_statistics(request: StatisticsRequest):
             or statistics_entity.address == "全国"):
         statistics_entity.address = None
     return AjaxResponse.from_success(data=service.salary_statistics(statistics_entity))
+
+
+#岗位排行
+@gen.route('/postRank', methods=["GET"])
+@QueryValidator(is_page=True)
+@PreAuthorize(HasPerm('recruit:recruitInfo:statistics'))
+@JsonSerializer()
+def post_rank_statistics(request: StatisticsRequest):
+    statistics_entity = StatisticsRequest()
+    # 转换dto到Entity对象
+    for attr in request.model_fields.keys():
+        if hasattr(statistics_entity, attr):
+            setattr(statistics_entity, attr, getattr(request, attr))
+    if (statistics_entity.address is None
+            or statistics_entity.address == "中华人民共和国"
+            or statistics_entity.address == ""
+            or statistics_entity.address == "全国"):
+        statistics_entity.address = None
+    return AjaxResponse.from_success(data=service.post_rank_statistics(statistics_entity))

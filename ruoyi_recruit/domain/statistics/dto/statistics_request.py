@@ -85,3 +85,10 @@ class StatisticsRequest(BaseEntity):
         VoField(query=True),
         ExcelField(name="融资")
     ]
+    # limit
+    limit: Annotated[
+        Optional[int],
+        Field(default=None, description="limit"),
+        VoField(query=True),
+        ExcelField(name="limit")
+    ]

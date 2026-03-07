@@ -1,5 +1,6 @@
 from typing import List
 
+from ruoyi_recruit.domain.statistics.dto import StatisticsRequest
 from ruoyi_recruit.domain.statistics.po import StatisticsPo
 from ruoyi_recruit.domain.statistics.vo import StatisticsVo
 from ruoyi_recruit.mapper import StatisticsMapper
@@ -12,7 +13,7 @@ class StatisticsService:
     """
 
     @classmethod
-    def map_statistics(cls, statistics_entity) -> List[StatisticsVo]:
+    def map_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         地图统计信息
         """
@@ -69,7 +70,7 @@ class StatisticsService:
             return result
 
     @classmethod
-    def city_level_statistics(cls, statistics_entity) -> List[StatisticsVo]:
+    def city_level_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         城市等级统计
         """
@@ -77,7 +78,7 @@ class StatisticsService:
         return cls.build_result(pos)
 
     @classmethod
-    def post_type_statistics(cls, statistics_entity) -> List[StatisticsVo]:
+    def post_type_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         岗位统计
         """
@@ -85,7 +86,7 @@ class StatisticsService:
         return cls.build_result(pos)
 
     @classmethod
-    def education_statistics(cls, statistics_entity) -> List[StatisticsVo]:
+    def education_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         学历统计
         """
@@ -111,7 +112,7 @@ class StatisticsService:
         return result
 
     @classmethod
-    def enterprise_size_statistics(cls, statistics_entity) -> List[StatisticsVo]:
+    def enterprise_size_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         企业规模统计
         """
@@ -119,7 +120,7 @@ class StatisticsService:
         return cls.build_result(pos)
 
     @classmethod
-    def experience_statistics(cls, statistics_entity) -> List[StatisticsVo]:
+    def experience_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         经验统计
         """
@@ -127,11 +128,20 @@ class StatisticsService:
         return cls.build_result(pos)
 
     @classmethod
-    def financing_situation_statistics(cls, statistics_entity)-> List[StatisticsVo]:
+    def financing_situation_statistics(cls, statistics_entity: StatisticsRequest)-> List[StatisticsVo]:
         """
         融资统计
         """
         pos = StatisticsMapper.financing_situation_statistics(statistics_entity)
+        return cls.build_result(pos)
+
+    @classmethod
+    def post_rank_statistics(cls, statistics_entity: StatisticsRequest)-> List[StatisticsVo]:
+        """
+        岗位排行统计
+        """
+        statistics_entity.limit = 100
+        pos= StatisticsMapper.post_rank_statistics(statistics_entity)
         return cls.build_result(pos)
 
     @classmethod

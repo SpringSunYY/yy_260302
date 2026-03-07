@@ -88,3 +88,12 @@ export function financingSituationStatistics(query) {
     params: query
   })
 }
+
+//岗位排行
+export function postRankingStatistics(query) {
+  return request({
+    url: '/recruit/statistics/postRank',
+    method: 'get',
+    params: query
+  })
+}
