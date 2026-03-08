@@ -7,12 +7,14 @@ from typing import List, Optional
 
 from ruoyi_common.exception import ServiceException
 from ruoyi_common.utils.base import LogUtil
+from ruoyi_framework.descriptor.datascope import DataScope
 from ruoyi_recruit.domain.entity import ViewInfo
 from ruoyi_recruit.mapper.view_info_mapper import ViewInfoMapper
 
 class ViewInfoService:
     """用户浏览服务类"""
     @classmethod
+    @DataScope(dept=True, user=True)
     def select_view_info_list(cls, view_info: ViewInfo) -> List[ViewInfo]:
         """
         查询用户浏览列表
@@ -25,7 +27,7 @@ class ViewInfoService:
         """
         return ViewInfoMapper.select_view_info_list(view_info)
 
-    
+
     @classmethod
     def select_view_info_by_id(cls, id: int) -> Optional[ViewInfo]:
         """
@@ -38,7 +40,7 @@ class ViewInfoService:
             view_info: 用户浏览对象
         """
         return ViewInfoMapper.select_view_info_by_id(id)
-    
+
     @classmethod
     def insert_view_info(cls, view_info: ViewInfo) -> int:
         """
@@ -52,7 +54,7 @@ class ViewInfoService:
         """
         return ViewInfoMapper.insert_view_info(view_info)
 
-    
+
     @classmethod
     def update_view_info(cls, view_info: ViewInfo) -> int:
         """
@@ -65,9 +67,9 @@ class ViewInfoService:
             int: 更新的记录数
         """
         return ViewInfoMapper.update_view_info(view_info)
-    
 
-    
+
+
     @classmethod
     def delete_view_info_by_ids(cls, ids: List[int]) -> int:
         """
@@ -80,7 +82,7 @@ class ViewInfoService:
             int: 删除的记录数
         """
         return ViewInfoMapper.delete_view_info_by_ids(ids)
-    
+
     @classmethod
     def import_view_info(cls, view_info_list: List[ViewInfo], is_update: bool = False) -> str:
         """
@@ -104,7 +106,7 @@ class ViewInfoService:
         for view_info in view_info_list:
             try:
                 display_value = view_info
-                
+
                 display_value = getattr(view_info, "id", display_value)
                 existing = None
                 if view_info.id is not None:
@@ -118,7 +120,7 @@ class ViewInfoService:
                         continue
                 else:
                     result = ViewInfoMapper.insert_view_info(view_info)
-                
+
                 if result > 0:
                     success_count += 1
                     success_msg += f"<br/> 第{success_count}条数据，操作成功：{display_value}"

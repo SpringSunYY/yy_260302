@@ -12,6 +12,7 @@ from typing import List, Optional, Dict, Tuple
 from ruoyi_common.constant import HttpStatus, ConfigConstants
 from ruoyi_common.exception import ServiceException
 from ruoyi_common.utils.base import LogUtil
+from ruoyi_framework.descriptor.datascope import DataScope
 from ruoyi_recruit.domain.entity import RecommendInfo, LikeInfo, ViewInfo, RecruitInfo
 from ruoyi_recruit.mapper.like_info_mapper import LikeInfoMapper
 from ruoyi_recruit.mapper.recommend_info_mapper import RecommendInfoMapper
@@ -182,6 +183,7 @@ class RecommendInfoService:
     # ==================== 对外接口 ====================
 
     @classmethod
+    @DataScope(dept=True, user=True)
     def select_recommend_info_list(cls, recommend_info: RecommendInfo) -> List[RecommendInfo]:
         """查询用户推荐列表"""
         return RecommendInfoMapper.select_recommend_info_list(recommend_info)
@@ -374,7 +376,7 @@ class RecommendInfoService:
         weights = cls._get_default_weights()
         time_decay_factor = float(cls._get_config_value(ConfigConstants.CONFIG_KEY_TIME_DECAY_FACTOR, "0.95"))
         view_num = int(cls._get_config_value(ConfigConstants.CONFIG_KEY_VIEW_RECORD_NUM, "30"))
-        like_num = int(cls._get_config_value(ConfigConstants.CONFIG_KEY_LIKE_RECORD_NUM, "5"))
+        like_num = int(cls._get_config_value(ConfigConstants.CONFIG_KEY_LIKE_RECORD_NUM, "10"))
         recommend_num = int(cls._get_config_value(ConfigConstants.CONFIG_KEY_RECOMMEND_NUM, "1000"))
         like_score = float(cls._get_config_value(ConfigConstants.CONFIG_KEY_LIKE_SCORE, "2.0"))
         view_score = float(cls._get_config_value(ConfigConstants.CONFIG_KEY_VIEW_SCORE, "1.0"))

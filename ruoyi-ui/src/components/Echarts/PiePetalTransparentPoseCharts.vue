@@ -122,7 +122,7 @@ export default {
       if (!data || !data.length) return;
 
       // 统计计算
-      const total = data.reduce((sum, item) => sum + Number(item.value), 0);
+      const total = data.reduce((sum, item) => sum + Number(item.value), 0).toFixed(2);
       const avg = (total / data.length).toFixed(2);
 
       // 数据处理：排序并添加半透明样式

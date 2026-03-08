@@ -373,7 +373,7 @@ export default {
           left: 'center',
           top: 10,
           text: this.chartTitle,
-          textStyle: {color: hexToRgba(this.colorMain, 0.2), fontSize: 16}
+          textStyle: {color: hexToRgba(this.colorMain, 1), fontSize: 24}
         }],
         tooltip: {
           trigger: 'item',

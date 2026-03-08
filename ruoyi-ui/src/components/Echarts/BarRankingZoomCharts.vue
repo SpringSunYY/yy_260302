@@ -206,6 +206,11 @@ export default {
     setOption(data) {
       if (!data || !data.length) return;
 
+      // 先清空图表，确保完全替换数据
+      if (this.chart) {
+        this.chart.clear();
+      }
+
       // 统计计算
       const total = data.reduce((sum, item) => sum + Number(item.value || 0), 0);
       const avg = (total / data.length).toFixed(2);

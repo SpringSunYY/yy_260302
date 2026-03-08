@@ -178,7 +178,7 @@ export const dynamicRoutes = [
   {
     path: '/recruit/statistics/screen',
     hidden: true,
-    permissions: ['StatisticsScreen'],
+    permissions: ['recruit:recruitInfo:statistics'],
     component: () => import('@/views/recruit/statistics/screen'),
     name: 'StatisticsScreen',
     meta: {title: '统计大屏'}

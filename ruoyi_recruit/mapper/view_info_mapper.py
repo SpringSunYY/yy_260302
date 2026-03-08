@@ -74,6 +74,13 @@ class ViewInfoMapper:
                 stmt = stmt.where(ViewInfoPo.create_time >= begin_val)
             if end_val is not None:
                 stmt = stmt.where(ViewInfoPo.create_time <= end_val)
+
+            if ("criterian_meta" in g and
+                        g.criterian_meta.scope is not None and
+                        g.criterian_meta.scope != [] and
+                        g.criterian_meta.scope != ()):
+                stmt = stmt.where(g.criterian_meta.scope)
+            stmt = stmt.order_by(ViewInfoPo.create_time.desc())
             if "criterian_meta" in g and g.criterian_meta.page:
                 g.criterian_meta.page.stmt = stmt
             result = db.session.execute(stmt).scalars().all()

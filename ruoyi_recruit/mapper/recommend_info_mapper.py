@@ -13,6 +13,7 @@ from ruoyi_admin.ext import db
 from ruoyi_recruit.domain.entity import RecommendInfo
 from ruoyi_recruit.domain.po import RecommendInfoPo
 
+
 class RecommendInfoMapper:
     """用户推荐Mapper"""
 
@@ -31,15 +32,11 @@ class RecommendInfoMapper:
             # 构建查询条件
             stmt = select(RecommendInfoPo)
 
-
             if recommend_info.id is not None:
                 stmt = stmt.where(RecommendInfoPo.id == recommend_info.id)
 
-
             if recommend_info.user_name:
                 stmt = stmt.where(RecommendInfoPo.user_name.like("%" + str(recommend_info.user_name) + "%"))
-
-
 
             _params = getattr(recommend_info, "params", {}) or {}
             begin_val = _params.get("beginCreateTime")
@@ -48,6 +45,13 @@ class RecommendInfoMapper:
                 stmt = stmt.where(RecommendInfoPo.create_time >= begin_val)
             if end_val is not None:
                 stmt = stmt.where(RecommendInfoPo.create_time <= end_val)
+
+            if ("criterian_meta" in g and
+                    g.criterian_meta.scope is not None and
+                    g.criterian_meta.scope != [] and
+                    g.criterian_meta.scope != ()):
+                stmt = stmt.where(g.criterian_meta.scope)
+            stmt = stmt.order_by(RecommendInfoPo.create_time.desc())
             if "criterian_meta" in g and g.criterian_meta.page:
                 g.criterian_meta.page.stmt = stmt
             result = db.session.execute(stmt).scalars().all()
@@ -56,7 +60,6 @@ class RecommendInfoMapper:
             print(f"查询用户推荐列表出错: {e}")
             return []
 
-    
     @classmethod
     def select_recommend_info_by_id(cls, id: int) -> Optional[RecommendInfo]:
         """
@@ -74,7 +77,6 @@ class RecommendInfoMapper:
         except Exception as e:
             print(f"根据ID查询用户推荐出错: {e}")
             return None
-    
 
     @classmethod
     def insert_recommend_info(cls, recommend_info: RecommendInfo) -> int:
@@ -105,7 +107,6 @@ class RecommendInfoMapper:
             print(f"新增用户推荐出错: {e}")
             return 0
 
-    
     @classmethod
     def update_recommend_info(cls, recommend_info: RecommendInfo) -> int:
         """
@@ -118,7 +119,7 @@ class RecommendInfoMapper:
             int: 更新的记录数
         """
         try:
-            
+
             existing = db.session.get(RecommendInfoPo, recommend_info.id)
             if not existing:
                 return 0
@@ -131,7 +132,7 @@ class RecommendInfoMapper:
             existing.create_time = recommend_info.create_time
             db.session.commit()
             return 1
-            
+
         except Exception as e:
             db.session.rollback()
             print(f"修改用户推荐出错: {e}")
@@ -178,4 +179,3 @@ class RecommendInfoMapper:
         except Exception as e:
             print(f"获取用户推荐历史出错: {e}")
             return None
-    

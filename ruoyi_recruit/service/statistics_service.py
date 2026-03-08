@@ -1,5 +1,6 @@
 from typing import List
 
+from ruoyi_framework.descriptor import custom_cacheable
 from ruoyi_recruit.domain.statistics.dto import StatisticsRequest
 from ruoyi_recruit.domain.statistics.po import StatisticsPo
 from ruoyi_recruit.domain.statistics.vo import StatisticsVo
@@ -7,12 +8,19 @@ from ruoyi_recruit.mapper import StatisticsMapper
 from ruoyi_system.service.sys_config import SysConfigService
 from ruoyi_common.constant import ConfigConstants
 
+
 class StatisticsService:
     """
     招聘信息数据分析统计
     """
+    time_out = 60 * 60
 
     @classmethod
+    @custom_cacheable(
+        key_prefix="statistics:map",
+        use_query_params_as_key=True,
+        expire_time=time_out
+    )
     def map_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         地图统计信息
@@ -70,6 +78,11 @@ class StatisticsService:
             return result
 
     @classmethod
+    @custom_cacheable(
+        key_prefix="statistics:city:level",
+        use_query_params_as_key=True,
+        expire_time=time_out
+    )
     def city_level_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         城市等级统计
@@ -78,6 +91,11 @@ class StatisticsService:
         return cls.build_result(pos)
 
     @classmethod
+    @custom_cacheable(
+        key_prefix="statistics:post:type",
+        use_query_params_as_key=True,
+        expire_time=time_out
+    )
     def post_type_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         岗位统计
@@ -86,6 +104,11 @@ class StatisticsService:
         return cls.build_result(pos)
 
     @classmethod
+    @custom_cacheable(
+        key_prefix="statistics:education",
+        use_query_params_as_key=True,
+        expire_time=time_out
+    )
     def education_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         学历统计
@@ -112,6 +135,11 @@ class StatisticsService:
         return result
 
     @classmethod
+    @custom_cacheable(
+        key_prefix="statistics:enterprise:size",
+        use_query_params_as_key=True,
+        expire_time=time_out
+    )
     def enterprise_size_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         企业规模统计
@@ -120,6 +148,11 @@ class StatisticsService:
         return cls.build_result(pos)
 
     @classmethod
+    @custom_cacheable(
+        key_prefix="statistics:experience",
+        use_query_params_as_key=True,
+        expire_time=time_out
+    )
     def experience_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         经验统计
@@ -128,7 +161,12 @@ class StatisticsService:
         return cls.build_result(pos)
 
     @classmethod
-    def financing_situation_statistics(cls, statistics_entity: StatisticsRequest)-> List[StatisticsVo]:
+    @custom_cacheable(
+        key_prefix="statistics:financing",
+        use_query_params_as_key=True,
+        expire_time=time_out
+    )
+    def financing_situation_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         融资统计
         """
@@ -136,12 +174,17 @@ class StatisticsService:
         return cls.build_result(pos)
 
     @classmethod
-    def post_rank_statistics(cls, statistics_entity: StatisticsRequest)-> List[StatisticsVo]:
+    @custom_cacheable(
+        key_prefix="statistics:post:rank",
+        use_query_params_as_key=True,
+        expire_time=time_out
+    )
+    def post_rank_statistics(cls, statistics_entity: StatisticsRequest) -> List[StatisticsVo]:
         """
         岗位排行统计
         """
         statistics_entity.limit = 100
-        pos= StatisticsMapper.post_rank_statistics(statistics_entity)
+        pos = StatisticsMapper.post_rank_statistics(statistics_entity)
         return cls.build_result(pos)
 
     @classmethod
@@ -203,6 +246,11 @@ class StatisticsService:
         return result
 
     @classmethod
+    @custom_cacheable(
+        key_prefix="statistics:main:business",
+        use_query_params_as_key=True,
+        expire_time=time_out
+    )
     def main_business_statistics(cls, statistics_entity) -> List[StatisticsVo]:
         """
         主营业务统计
@@ -211,6 +259,11 @@ class StatisticsService:
         return cls.build_strip_result(pos, 50)
 
     @classmethod
+    @custom_cacheable(
+        key_prefix="statistics:skill",
+        use_query_params_as_key=True,
+        expire_time=time_out
+    )
     def skill_statistics(cls, statistics_entity) -> List[StatisticsVo]:
         """
         技能统计
@@ -256,6 +309,11 @@ class StatisticsService:
             return f"{formatted_range[-1]}以上"
 
     @classmethod
+    @custom_cacheable(
+        key_prefix="statistics:salary",
+        use_query_params_as_key=True,
+        expire_time=time_out
+    )
     def salary_statistics(cls, statistics_entity) -> List[StatisticsVo]:
         """
         薪资统计

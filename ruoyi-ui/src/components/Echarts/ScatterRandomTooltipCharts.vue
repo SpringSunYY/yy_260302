@@ -118,7 +118,7 @@ export default {
     setOptions() {
 
       // 1. 计算总计
-      this.totalSum = this.chartData.reduce((sum, item) => sum + (item.value || 0), 0);
+      this.totalSum = this.chartData.reduce((sum, item) => sum + (item.value || 0), 0).toFixed(2);
       // 2. 处理数据映射
       const processedData = this.chartData.map((item, index) => {
         const percentage = ((item.value / this.totalSum) * 100).toFixed(2);

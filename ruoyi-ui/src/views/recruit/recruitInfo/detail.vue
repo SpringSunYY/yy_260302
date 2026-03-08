@@ -17,7 +17,7 @@
               </span>
             </div>
           </div>
-          <div class="action-section">
+          <div class="action-section" v-hasPermi="['recruit:likeInfo:add']">
             <el-button
               :type="recruitInfo.isLiked ? 'danger' : 'primary'"
               :icon="recruitInfo.isLiked ? 'el-icon-star-on' : 'el-icon-star-off'"

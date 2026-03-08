@@ -245,7 +245,7 @@ export default {
       ],
       //工资地图
       mapStatisticsData: [],
-      mapStatisticsName: "工资地图",
+      mapStatisticsName: "岗位分布地图",
       //城市等级
       cityLevelStatisticsData: [],
       cityLevelStatisticsName: "城市等级分析",
@@ -536,6 +536,7 @@ export default {
         if (!res.data) return
         this.skillStatisticsData = []
         this.skillSalaryStatisticsData = []
+        this.skillRankingStatisticsData = []
         res.data.forEach(item => {
           const tooltipText =
             `平均工资：${item.avg}<br>` +
@@ -721,7 +722,7 @@ export default {
 </script>
 <style scoped lang="scss">
 .app-container {
-  background-image: url("../../../assets/images/map.png");
+  background-image: url("../../../assets/images/bg.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;

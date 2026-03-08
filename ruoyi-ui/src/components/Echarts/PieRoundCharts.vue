@@ -107,7 +107,7 @@ export default {
     setOption(data) {
       if (!data || !data.length) return;
       // 1. 数据处理与颜色分配
-      const total = data.reduce((per, cur) => per + Number(cur.value), 0);
+      const total = data.reduce((per, cur) => per + Number(cur.value), 0).toFixed(2);
       const avg = (total / data.length).toFixed(2);
       const colorList = data.map(() => generateRandomColor(this.defaultColor));
 

@@ -8,12 +8,14 @@ from typing import List, Optional
 from ruoyi_common.exception import ServiceException
 from ruoyi_common.utils.base import LogUtil
 from ruoyi_common.utils.security_util import get_username, get_user_id
+from ruoyi_framework.descriptor.datascope import DataScope
 from ruoyi_recruit.domain.entity import LikeInfo, RecruitInfo
 from ruoyi_recruit.mapper.like_info_mapper import LikeInfoMapper
 
 class LikeInfoService:
     """用户点赞服务类"""
     @classmethod
+    @DataScope(dept=True, user=True)
     def select_like_info_list(cls, like_info: LikeInfo) -> List[LikeInfo]:
         """
         查询用户点赞列表
@@ -26,7 +28,7 @@ class LikeInfoService:
         """
         return LikeInfoMapper.select_like_info_list(like_info)
 
-    
+
     @classmethod
     def select_like_info_by_id(cls, id: int) -> Optional[LikeInfo]:
         """
@@ -39,7 +41,7 @@ class LikeInfoService:
             like_info: 用户点赞对象
         """
         return LikeInfoMapper.select_like_info_by_id(id)
-    
+
     @classmethod
     def insert_like_info(cls, like_info: LikeInfo) -> int:
         """
@@ -53,7 +55,7 @@ class LikeInfoService:
         """
         return LikeInfoMapper.insert_like_info(like_info)
 
-    
+
     @classmethod
     def update_like_info(cls, like_info: LikeInfo) -> int:
         """
@@ -66,9 +68,9 @@ class LikeInfoService:
             int: 更新的记录数
         """
         return LikeInfoMapper.update_like_info(like_info)
-    
 
-    
+
+
     @classmethod
     def delete_like_info_by_ids(cls, ids: List[int]) -> int:
         """
@@ -127,7 +129,7 @@ class LikeInfoService:
             if result > 0:
                 return {"is_liked": True, "msg": "点赞成功"}
             return {"is_liked": False, "msg": "点赞失败"}
-    
+
     @classmethod
     def import_like_info(cls, like_info_list: List[LikeInfo], is_update: bool = False) -> str:
         """
@@ -151,7 +153,7 @@ class LikeInfoService:
         for like_info in like_info_list:
             try:
                 display_value = like_info
-                
+
                 display_value = getattr(like_info, "id", display_value)
                 existing = None
                 if like_info.id is not None:
@@ -165,7 +167,7 @@ class LikeInfoService:
                         continue
                 else:
                     result = LikeInfoMapper.insert_like_info(like_info)
-                
+
                 if result > 0:
                     success_count += 1
                     success_msg += f"<br/> 第{success_count}条数据，操作成功：{display_value}"
